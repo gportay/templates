@@ -60,7 +60,7 @@ void usage(FILE * f, char * const arg0)
 		   "", applet(arg0));
 }
 
-int parse_arguments (struct options_t *opts, int argc, char * const argv[])
+int parse_arguments(struct options_t *opts, int argc, char * const argv[])
 {
 	static const struct option long_options[] = {
 		{ "string",  required_argument, NULL, 's' },
