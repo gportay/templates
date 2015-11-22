@@ -31,32 +31,46 @@
 
 #include <stdio.h>
 
-static unsigned int ROWSIZE = 0x10;
+#define __min(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a < _b ? _a : _b; })
 
-static void hexdump_line(const unsigned char *buf, unsigned int size)
+static unsigned int ROWSIZE = 0x10;
+static char EMPTYBYTE = ' ';
+
+static void hexdump_line(const unsigned char *buf, unsigned int bufsize)
 {
 	unsigned int j;
 
-	for (j = 0; j < ROWSIZE; j++) {
+	for (j = 0; j < __min(ROWSIZE, bufsize); j++) {
 		printf(" %02x", buf[j]);
+	}
+
+	for (j = 0; j < __min(ROWSIZE-bufsize, ROWSIZE); j++) {
+		printf(" %-2c", EMPTYBYTE);
 	}
 
 	printf("\t");
 
-	for (j = 0; j < ROWSIZE; j++) {
+	for (j = 0; j < __min(ROWSIZE, bufsize); j++) {
 		if ((buf[j] < 0x20) || (buf[j] >= 0x7F))
 			printf(".");
 		else
 			printf("%c", (char) buf[j]);
 	}
+
+	for (j = 0; j < __min(ROWSIZE-bufsize, ROWSIZE); j++) {
+		printf("%c", EMPTYBYTE);
+	}
 }
 
-static void hexdump(unsigned int address, const unsigned char *buf, unsigned int size)
+static void hexdump(unsigned int address, const unsigned char *buf, unsigned int bufsize)
 {
-	unsigned int r, row;
+	unsigned int r, row, size = 0;
 
-	row = size / ROWSIZE;
-	if (size % ROWSIZE)
+	row = bufsize / ROWSIZE;
+	if (bufsize % ROWSIZE)
 		row++;
 
 	printf("%s:", "@address");
@@ -65,9 +79,12 @@ static void hexdump(unsigned int address, const unsigned char *buf, unsigned int
 	printf("\n");
 
 	for (r = 0; r < row; r++) {
-		printf("%08x:", address + (r * ROWSIZE));
-		hexdump_line(buf, ROWSIZE);
-		buf += ROWSIZE;
+		unsigned int s = __min(bufsize - size, ROWSIZE);
+
+		printf("%08x:", address + size);
+		hexdump_line(buf, s);
+		buf += s;
+		size += s;
 		printf("\n");
 	}
 	printf("%08x\n", address + size);
