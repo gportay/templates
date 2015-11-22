@@ -36,9 +36,6 @@ static unsigned int ROWSIZE = 0x10;
 static void hexdump_line(const unsigned char *buf, unsigned int size)
 {
 	unsigned int j;
-	unsigned char b[ROWSIZE];
-	memcpy(b, buf, size);
-	memset(&b[size], 0x00, (ROWSIZE - size));
 
 	for (j = 0; j < ROWSIZE; j++) {
 		printf(" %02x", buf[j]);
