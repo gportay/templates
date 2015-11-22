@@ -49,8 +49,6 @@ static void hexdump_line(const unsigned char *buf, unsigned int size)
 		else
 			printf("%c", (char) buf[j]);
 	}
-
-	printf("\n");
 }
 
 static void hexdump(unsigned int address, const unsigned char *buf, unsigned int size)
@@ -70,6 +68,7 @@ static void hexdump(unsigned int address, const unsigned char *buf, unsigned int
 		printf("%08x:", address + (r * ROWSIZE));
 		hexdump_line(buf, ROWSIZE);
 		buf += ROWSIZE;
+		printf("\n");
 	}
 	printf("%08x\n", address + size);
 }
