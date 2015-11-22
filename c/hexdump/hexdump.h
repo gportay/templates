@@ -36,6 +36,9 @@
        __typeof__ (b) _b = (b); \
      _a < _b ? _a : _b; })
 
+static int DUMPHEADER = 1;
+static int DUMPFOOTER = 1;
+static int DUMPADDR = 1;
 static unsigned int ROWSIZE = 0x10;
 static char EMPTYBYTE = ' ';
 
@@ -73,21 +76,28 @@ static void hexdump(unsigned int address, const unsigned char *buf, unsigned int
 	if (bufsize % ROWSIZE)
 		row++;
 
-	printf("%s:", "@address");
-	for (r = 0; r < ROWSIZE; r ++)
-		printf(" %02x", r);
-	printf("\n");
+	if (DUMPHEADER) {
+		printf("%s:", "@address");
+		for (r = 0; r < ROWSIZE; r ++)
+			printf(" %02x", r);
+		printf("\n");
+	}
 
 	for (r = 0; r < row; r++) {
 		unsigned int s = __min(bufsize - size, ROWSIZE);
 
-		printf("%08x:", address + size);
+		if (DUMPADDR)
+			printf("%08x:", address + size);
+
 		hexdump_line(buf, s);
 		buf += s;
 		size += s;
 		printf("\n");
 	}
-	printf("%08x\n", address + size);
+
+	if (DUMPFOOTER) {
+		printf("%08x\n", address + size);
+	}
 }
 
 #endif /* __HEXDUMP_H__ */
