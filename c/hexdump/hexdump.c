@@ -169,6 +169,8 @@ int main(int argc, char * const argv[])
 		goto exit;
 	}
 
+	DUMPFOOTER = 0;
+	DUMPADDR = 1;
 	for (;;) {
 		ssize_t s;
 		char buf[BUFSIZE];
@@ -196,7 +198,13 @@ int main(int argc, char * const argv[])
 		buf[s] = 0;
 		hexdump(size, buf, s);
 		size += s;
+
+		if (size)
+			DUMPHEADER = 0;
 	}
+
+	if (size)
+		printf("%08x\n", size);
 
 exit:
 	if (fd > -1) {
