@@ -26,3 +26,11 @@ function prompt_shell_rc {
 if ! echo "$PS1" | grep -q prompt_shell_rc; then
 	PS1="\\033[1;31m\$(prompt_shell_rc \$?)\\033[0m$PS1"
 fi
+
+function prompt_git_branch {
+	git branch --no-color 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\ \[\1\]/'
+}
+
+if ! echo "$PS1" | grep -q prompt_git_branch && which git; then
+	PS1="$(echo "$PS1" | sed 's/\(\\$ \)$/\\033[1;32m$(prompt_git_branch)\\033[0m\1/1')"
+fi >/dev/null 2>&1
