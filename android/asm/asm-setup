@@ -1,0 +1,80 @@
+#!/usr/bin/gmake -sf
+#
+# Copyright 2016 Gaël PORTAY <gael.portay@gmail.com>
+#
+# Licensed under the MIT license.
+#
+
+PREFIX ?= /usr/local
+
+.INTERMEDIATE: index.html
+
+__make		:= make
+__install	:= cp -d
+__makefile	:= $(firstword $(MAKEFILE_LIST))
+
+ifeq ($(__makefile),Makefile)
+all: asm
+else
+__make		:= $(__makefile)
+__install	:= mv
+
+all:
+	make -f $(__makefile) error >&2
+	@echo '' >&2
+	@exit 1
+
+error:
+	@echo 'Usage: $(__make) [un]install [PREFIX=/usr] [DESTDIR=] to install binary to system.'
+	@echo ''
+	@echo 'Example 1: install for all users'
+	@echo '# $(__make) install'
+	@echo 'or with super-user privileges:'
+	@echo '$$ sudo $(__make) install'
+	@echo ''
+	@echo 'Example 2: install for current user only'
+	@echo '$$ $(__make) install DESTDIR=~ PREFIX='
+	@echo 'or using install-user alias:'
+	@echo '$$ $(__make) install-user'
+
+Makefile:
+	ln -s $(__makefile) $@
+endif
+
+help:
+	@echo 'Usage: $(__make) [all]                                to download sources to current directory.'
+	@echo '       $(__make) [un]install [PREFIX=/usr] [DESTDIR=] to install binary to system.'
+	@echo '       $(__make) [un]install-user                     to install binary to current user.'
+	@echo '       $(__make) android-screen-monitor               to fetch sources.'
+	@echo '       $(__make) help                                 to display this message.'
+
+index.html:
+	wget -qO- http://adakoda.github.io/android-screen-monitor/ >$@
+
+asm.jar: index.html
+	sed -n '/Download<\/h3>/,/^$$/{//d;s,.*Version \([0-9.]*\) - <a.*href="\(.*\)">\(.*\)</a>.*,wget -O- \2 | gzip -d >asm-\1.jar \&\& ln -s asm-\1.jar $@ \&\& exit 0,p}' $< | sh
+
+asm: index.html asm.jar
+	sed -n '/Run<\/h3>/,/^$$/{//d;/<pre><code>/s,.*<code>*\$$ \(.*\)</code>.*,#!/bin/sh\n\1 \$$*,p}' $< >$@
+	chmod a+x $@
+
+android-screen-monitor:
+	git clone git@github.com:adakoda/android-screen-monitor.git
+
+install: asm
+	install -d $(DESTDIR)$(PREFIX)/bin
+	$(__install) asm asm.jar $(shell readlink asm.jar) $(DESTDIR)$(PREFIX)/bin
+	sed -e '/^java/s,asm.jar,$(DESTDIR)$(PREFIX)/bin/asm.jar,' -i $(DESTDIR)$(PREFIX)/bin/asm
+
+uninstall:
+	-for bin in asm asm.jar $(shell readlink asm.jar); do rm -f $(DESTDIR)$(PREFIX)/bin/$$bin; done
+
+install-user:
+	make -f $(__makefile) install DESTDIR=~ PREFIX=
+
+uninstall-user:
+	make -f $(__makefile) uninstall DESTDIR=~ PREFIX=
+
+clean:
+	rm -f asm asm.jar asm-*.jar
+
