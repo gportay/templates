@@ -16,3 +16,13 @@ for dir in $HOME/x-tools/*/bin; do
 done
 
 export PATH
+
+function prompt_shell_rc {
+	if [ ${1:-0} -ne 0 ]; then
+		echo -e "($1) "
+	fi
+}
+
+if ! echo "$PS1" | grep -q prompt_shell_rc; then
+	PS1="\\033[1;31m\$(prompt_shell_rc \$?)\\033[0m$PS1"
+fi
