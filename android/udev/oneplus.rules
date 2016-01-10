@@ -1,0 +1,8 @@
+# fastboot protocol A0001 alias bacon (OnePlus One)
+SUBSYSTEM=="usb", ATTR{idVendor}=="18d1", ATTR{idProduct}=="d00d", MODE="0664", GROUP="android"
+# adb protocol on A0001 alias bacon (OnePlus One) [Charging or PTP]
+SUBSYSTEM=="usb", ATTR{idVendor}=="05c6", ATTR{idProduct}=="6765", MODE="0664", GROUP="android"
+# adb protocol on A0001 alias bacon (OnePlus One) [PTP]
+SUBSYSTEM=="usb", ATTR{idVendor}=="05c6", ATTR{idProduct}=="6772", MODE="0664", GROUP="android"
+# adb protocol on A0001 alias bacon (OnePlus One) [MIDI]
+SUBSYSTEM=="usb", ATTR{idVendor}=="05c6", ATTR{idProduct}=="6777", MODE="0664", GROUP="android"
