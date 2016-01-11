@@ -7,9 +7,12 @@
 
 PREFIX	?= /var/lib/pkg
 
-pkg		:= a
+pkg-m		:= a b c
 a-vers		:= 0 1 2
 a-deps		:= b c
+b-vers		:= 3 4 5
+b-deps		:= c
+c-vers		:= 0
 
 .PHONY: all
 
@@ -30,7 +33,7 @@ tgz/$(1)-$(2)$(PREFIX)/$(1)/control:
 pkgfiles-m += tgz/$(1)-$(2)$(PREFIX)/$(1)/control
 endef
 
-$(foreach vers,$($(pkg)-vers),$(eval $(call pkg_control,$(pkg),$(vers))))
+$(foreach pkg,$(pkg-m),$(eval $(call $(foreach vers,$($(pkg)-vers),$(eval $(call pkg_control,$(pkg),$(vers)))))))
 
 all:: $(pkgfiles-m)
 
