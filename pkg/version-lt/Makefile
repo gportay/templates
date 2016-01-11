@@ -46,6 +46,8 @@ run-test:
 	make -f Makefile test
 	echo "Testing shell version..."
 	make -f Makefile test VERCMP="version-lt.sh"
+	echo "Testing awk version..."
+	make -f Makefile test VERCMP="version-lt.sh" PATH=.:$(PATH)
 
 clean:
 	rm -f version-lt

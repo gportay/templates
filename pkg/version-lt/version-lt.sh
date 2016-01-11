@@ -55,10 +55,18 @@ parse_arguments() {
 }
 
 version_lt() {
-	cat <<EOF | sort -V | head -n1 | grep -v$QUIET "$2"
+	if which verrevcmp.awk >/dev/null 2>&1; then
+		if echo "$1" "$2" | verrevcmp.awk; then
+			echo $1
+		else
+			echo $2
+		fi
+	else
+		cat <<EOF | sort -V | head -n1
 $1
 $2
 EOF
+	fi | grep -v$QUIET "$2"
 }
 
 parse_arguments $*
