@@ -6,39 +6,46 @@
 
 CFLAGS	+= -Werror -Wall -Wextra
 
-.SILENT: run-test
+.SILENT: run-test test
 
-all: version-lt
+VERCMP	?= version-lt
+all: $(VERCMP)
 
 version-lt:
 
-run-test: version-lt
-	  ./$<         0.9   1.0   $(EXTRAOPTS)
-	  ./$< --equal 0.9   1.0   $(EXTRAOPTS)
-	  ./$<         0.9   1.0.0 $(EXTRAOPTS)
-	  ./$< --equal 0.9   1.0.0 $(EXTRAOPTS)
-	  ./$<         0.9   1.0.0 $(EXTRAOPTS)
-	  ./$< --equal 0.9   1.0.0 $(EXTRAOPTS)
-	  ./$<         0.9.0 1.0   $(EXTRAOPTS)
-	  ./$< --equal 0.9.0 1.0   $(EXTRAOPTS)
-	! ./$<         1.0   1.0   $(EXTRAOPTS)
-	  ./$< --equal 1.0   1.0   $(EXTRAOPTS)
-	  ./$<         1.0   1.0.0 $(EXTRAOPTS)
-	  ./$< --equal 1.0   1.0.0 $(EXTRAOPTS)
-	! ./$<         1.0.0 1.0   $(EXTRAOPTS)
-	! ./$< --equal 1.0.0 1.0   $(EXTRAOPTS)
-	! ./$<         1.1   1.0   $(EXTRAOPTS)
-	! ./$< --equal 1.1   1.0   $(EXTRAOPTS)
-	! ./$<         1.1   1.0.0 $(EXTRAOPTS)
-	! ./$< --equal 1.1   1.0.0 $(EXTRAOPTS)
-	! ./$<         1.1.0 1.0   $(EXTRAOPTS)
-	! ./$< --equal 1.1.0 1.0   $(EXTRAOPTS)
-	  ./$<         1.0.A 1.0.a $(EXTRAOPTS)
-	  ./$< --equal 1.0.A 1.0.a $(EXTRAOPTS)
-	! ./$<         1.0.a 1.0.a $(EXTRAOPTS)
-	  ./$< --equal 1.0.a 1.0.a $(EXTRAOPTS)
-	! ./$<         1.0.a 1.0.A $(EXTRAOPTS)
-	! ./$< --equal 1.0.a 1.0.A $(EXTRAOPTS)
+test: $(VERCMP)
+	  ./$(VERCMP)         0.9   1.0   $(EXTRAOPTS)
+	  ./$(VERCMP) --equal 0.9   1.0   $(EXTRAOPTS)
+	  ./$(VERCMP)         0.9   1.0.0 $(EXTRAOPTS)
+	  ./$(VERCMP) --equal 0.9   1.0.0 $(EXTRAOPTS)
+	  ./$(VERCMP)         0.9   1.0.0 $(EXTRAOPTS)
+	  ./$(VERCMP) --equal 0.9   1.0.0 $(EXTRAOPTS)
+	  ./$(VERCMP)         0.9.0 1.0   $(EXTRAOPTS)
+	  ./$(VERCMP) --equal 0.9.0 1.0   $(EXTRAOPTS)
+	! ./$(VERCMP)         1.0   1.0   $(EXTRAOPTS)
+	  ./$(VERCMP) --equal 1.0   1.0   $(EXTRAOPTS)
+	  ./$(VERCMP)         1.0   1.0.0 $(EXTRAOPTS)
+	  ./$(VERCMP) --equal 1.0   1.0.0 $(EXTRAOPTS)
+	! ./$(VERCMP)         1.0.0 1.0   $(EXTRAOPTS)
+	! ./$(VERCMP) --equal 1.0.0 1.0   $(EXTRAOPTS)
+	! ./$(VERCMP)         1.1   1.0   $(EXTRAOPTS)
+	! ./$(VERCMP) --equal 1.1   1.0   $(EXTRAOPTS)
+	! ./$(VERCMP)         1.1   1.0.0 $(EXTRAOPTS)
+	! ./$(VERCMP) --equal 1.1   1.0.0 $(EXTRAOPTS)
+	! ./$(VERCMP)         1.1.0 1.0   $(EXTRAOPTS)
+	! ./$(VERCMP) --equal 1.1.0 1.0   $(EXTRAOPTS)
+	  ./$(VERCMP)         1.0.A 1.0.a $(EXTRAOPTS)
+	  ./$(VERCMP) --equal 1.0.A 1.0.a $(EXTRAOPTS)
+	! ./$(VERCMP)         1.0.a 1.0.a $(EXTRAOPTS)
+	  ./$(VERCMP) --equal 1.0.a 1.0.a $(EXTRAOPTS)
+	! ./$(VERCMP)         1.0.a 1.0.A $(EXTRAOPTS)
+	! ./$(VERCMP) --equal 1.0.a 1.0.A $(EXTRAOPTS)
+
+run-test:
+	echo "Testing c version..."
+	make -f Makefile test
+	echo "Testing shell version..."
+	make -f Makefile test VERCMP="version-lt.sh"
 
 clean:
 	rm -f version-lt
