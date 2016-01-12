@@ -61,7 +61,16 @@ tgz-m := $(patsubst %,%.tgz,$(pkgdirs-m))
 %.tgz:
 	( cd $* && tar czf ../$(@F) * )
 
-all:: $(tgz-m)
+tgz/Index: $(tgz-m)
+	install -d $(@D)/
+	for tgz in $?; do \
+		tar xOzf $$tgz $(PREFIX:/%=%)/*/control; \
+		echo Filename: $${tgz##$(@D)/}; \
+		echo; \
+	done >$@
+	cat $@
+
+all:: tgz/Index
 
 clean:
 	rm -rf tgz/
