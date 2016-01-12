@@ -49,11 +49,19 @@ tgz/$(1)-$(2)$(PREFIX)/$(1)/control:
 $(foreach script,preinst postinst prerm postrm,$(eval $(call pkg_script,$(1),$(2),$(script))))
 
 pkgfiles-m += tgz/$(1)-$(2)$(PREFIX)/$(1)/control $($(1)-$(2)-script-y)
+pkgdirs-m  += tgz/$(1)-$(2)
+
+tgz/$(1)-$(2).tgz: tgz/$(1)-$(2)$(PREFIX)/$(1)/control $($(1)-$(2)-script-y)
 endef
 
 $(foreach pkg,$(pkg-m),$(eval $(call $(foreach vers,$($(pkg)-vers),$(eval $(call pkg_control,$(pkg),$(vers)))))))
 
-all:: $(pkgfiles-m)
+tgz-m := $(patsubst %,%.tgz,$(pkgdirs-m))
+
+%.tgz:
+	( cd $* && tar czf ../$(@F) * )
+
+all:: $(tgz-m)
 
 clean:
 	rm -rf tgz/
