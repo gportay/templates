@@ -54,7 +54,11 @@ pkgdirs-m  += tgz/$(1)-$(2)
 tgz/$(1)-$(2).tgz: tgz/$(1)-$(2)$(PREFIX)/$(1)/control $($(1)-$(2)-script-y)
 endef
 
-$(foreach pkg,$(pkg-m),$(eval $(call $(foreach vers,$($(pkg)-vers),$(eval $(call pkg_control,$(pkg),$(vers)))))))
+define pkg_root =
+$(foreach vers,$($(1)-vers),$(eval $(call pkg_control,$(1),$(vers))))
+endef
+
+$(foreach pkg,$(pkg-m),$(eval $(call pkg_root,$(pkg))))
 
 tgz-m := $(patsubst %,%.tgz,$(pkgdirs-m))
 
