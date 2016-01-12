@@ -55,7 +55,7 @@ tgz/$(1)-$(2).tgz: tgz/$(1)-$(2)$(PREFIX)/$(1)/control $($(1)-$(2)-script-y)
 endef
 
 define pkg_root =
-$(foreach vers,$($(1)-vers),$(eval $(call pkg_control,$(1),$(vers))))
+$(foreach vers,$(if $($(1)-vers),$($(1)-vers),1),$(eval $(call pkg_control,$(1),$(vers))))
 endef
 
 $(foreach pkg,$(pkg-m),$(eval $(call pkg_root,$(pkg))))
