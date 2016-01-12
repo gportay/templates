@@ -22,7 +22,7 @@ all::
 
 .SILENT::
 
-define pkg_script =
+define do_pkg_script =
 ifneq (,$($(1)-$(3)))
 .SILENT:: tgz/$(1)-$(2)$(PREFIX)/$(1)/$(3)
 tgz/$(1)-$(2)$(PREFIX)/$(1)/$(3):
@@ -36,7 +36,7 @@ $(1)-$(2)-script-y := tgz/$(1)-$(2)$(PREFIX)/$(1)/$(3)
 endif
 endef
 
-define pkg_control =
+define do_pkg_control =
 .SILENT:: tgz/$(1)-$(2)$(PREFIX)/$(1)/control
 tgz/$(1)-$(2)$(PREFIX)/$(1)/control:
 	install -d $$(@D)
@@ -46,7 +46,7 @@ tgz/$(1)-$(2)$(PREFIX)/$(1)/control:
 	echo
 	cat $$@
 
-$(foreach script,preinst postinst prerm postrm,$(eval $(call pkg_script,$(1),$(2),$(script))))
+$(foreach script,preinst postinst prerm postrm,$(eval $(call do_pkg_script,$(1),$(2),$(script))))
 
 pkgfiles-m += tgz/$(1)-$(2)$(PREFIX)/$(1)/control $($(1)-$(2)-script-y)
 pkgdirs-m  += tgz/$(1)-$(2)
@@ -54,11 +54,11 @@ pkgdirs-m  += tgz/$(1)-$(2)
 tgz/$(1)-$(2).tgz: tgz/$(1)-$(2)$(PREFIX)/$(1)/control $($(1)-$(2)-script-y)
 endef
 
-define pkg_root =
-$(foreach vers,$(if $($(1)-vers),$($(1)-vers),1),$(eval $(call pkg_control,$(1),$(vers))))
+define do_pkg =
+$(foreach vers,$(if $($(1)-vers),$($(1)-vers),1),$(eval $(call do_pkg_control,$(1),$(vers))))
 endef
 
-$(foreach pkg,$(pkg-m),$(eval $(call pkg_root,$(pkg))))
+$(foreach pkg,$(pkg-m),$(eval $(call do_pkg,$(pkg))))
 
 tgz-m := $(patsubst %,%.tgz,$(pkgdirs-m))
 
