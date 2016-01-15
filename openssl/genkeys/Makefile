@@ -12,7 +12,7 @@ PUBKEY	?= $(KEYNAME).pub
 
 .SILENT: message.txt
 
-all: message.txt.dec
+all: message.txt.dec message.txt.sig-verify
 
 message.txt:
 	echo "This is my private message!" >$@
@@ -45,9 +45,19 @@ key-info-%: %.pem
 %.dec: $(PRIVKEY) %.enc
 	openssl rsautl -decrypt -inkey $<        -in $*.enc
 
+%.sig: $(PRIVKEY) %
+	openssl dgst   -sha1 -sign   $<              $*         >$@
+
+%.sig-verify: $(PUBKEY) %.sig
+	openssl dgst   -sha1 -verify $< -signature   $*.sig      $*
+
 decode-%: %.dec
 
 decode-message.txt:
+
+verify-%: %.sig-verify
+
+verify-message.txt:
 
 clean:
 	rm -f message.*
