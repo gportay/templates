@@ -10,7 +10,12 @@ PUBKEY	?= $(KEYNAME).pub
 
 .SECONDARY: $(PRIVKEY) $(PUBKEY)
 
-all: keys
+.SILENT: message.txt
+
+all: message.txt.dec
+
+message.txt:
+	echo "This is my private message!" >$@
 
 $(PRIVKEY) $(PUBKEY):
 
@@ -34,7 +39,18 @@ key-info-%: %.pem
 %.pub: %.pem
 	openssl    rsa                           -in $<     -out $@ -outform PEM -pubout
 
+%.enc: $(PUBKEY) %
+	openssl rsautl -encrypt -inkey $< -pubin -in $*     -out $@
+
+%.dec: $(PRIVKEY) %.enc
+	openssl rsautl -decrypt -inkey $<        -in $*.enc
+
+decode-%: %.dec
+
+decode-message.txt:
+
 clean:
+	rm -f message.*
 
 mrproper: clean
 	rm -f *.pub* *.der *.pem*
