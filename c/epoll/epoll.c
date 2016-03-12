@@ -40,7 +40,7 @@ const char VERSION[] = __DATE__ " " __TIME__;
 #define BUFSIZE 256
 
 static int DEBUG = 0;
-#define debug(fmt, ...) if (DEBUG) fprintf(stderr, fmt, __VA_ARGS__)
+#define debug(fmt, ...) if (DEBUG) fprintf(stderr, fmt, ##__VA_ARGS__)
 
 struct options_t {
 	int timeout;
