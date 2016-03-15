@@ -4,7 +4,9 @@
 # Licensed under the MIT license.
 #
 
-USER	?= $(shell whoami)
+user	?= $(SUDO_USER)
+user	?= $(USER)
+user	?= $(shell whoami)
 GROUP	?= android
 RULES	:= $(wildcard *.rules)
 RULES	:= $(filter-out 51-android.rules,$(RULES))
@@ -20,7 +22,7 @@ all: 51-android.rules
 
 setup:
 	groupadd --force --system $(GROUP)
-	usermod --append --groups $(GROUP) $(USER)
+	usermod --append --groups $(GROUP) $(user)
 
 install: 51-android.rules
 	install -m 0755 -d $(DESTDIR)/etc/udev/rules.d/
