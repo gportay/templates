@@ -31,6 +31,12 @@ install: 51-android.rules
 reload:
 	udevadm control --reload-rules
 
+adb_usb.ini: $(RULES)
+	sed -n 's,.*ATTR{idVendor}=="\([0-9a-fA-F]*\)".*,0x\1,p' $^ | sort | uniq >$@
+
+setup-adb: adb_usb.ini
+	install -m 0644 $< $(DESTDIR)$(HOME)/.android/
+
 clean:
-	rm -f 51-android.rules
+	rm -f 51-android.rules adb_usb.ini
 
