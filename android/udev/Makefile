@@ -23,6 +23,7 @@ setup:
 	usermod --append --groups $(GROUP) $(USER)
 
 install: 51-android.rules
+	install -m 0755 -d $(DESTDIR)/etc/udev/rules.d/
 	install -m 0644 $< $(DESTDIR)/etc/udev/rules.d/
 
 reload:
