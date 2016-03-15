@@ -28,6 +28,7 @@ install: 51-android.rules
 
 reload:
 	udevadm control --reload-rules
+
 clean:
 	rm -f 51-android.rules
 
