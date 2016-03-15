@@ -7,7 +7,7 @@
 user	?= $(SUDO_USER)
 user	?= $(USER)
 user	?= $(shell whoami)
-GROUP	?= android
+group	?= android
 RULES	:= $(wildcard *.rules)
 RULES	:= $(filter-out 51-android.rules,$(RULES))
 
@@ -17,12 +17,12 @@ all: 51-android.rules
 	wget -S -O - http://source.android.com/source/$@ | \
 	sed -e "s/MODE=\"0600\"/MODE=\"0644\"/" \
 	    -e "s/OWNER/GROUP/" \
-	    -e "s/<username>/$(GROUP)/" | cat - $? | \
+	    -e "s/<username>/$(group)/" | cat - $? | \
 	tee $@
 
 setup:
-	groupadd --force --system $(GROUP)
-	usermod --append --groups $(GROUP) $(user)
+	groupadd --force --system $(group)
+	usermod --append --groups $(group) $(user)
 
 install: 51-android.rules
 	install -m 0755 -d $(DESTDIR)/etc/udev/rules.d/
