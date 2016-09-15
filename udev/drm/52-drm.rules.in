@@ -1,0 +1,15 @@
+# Run script on drm change
+#
+# Note: There is no way to know which port has been connected/disconnected.
+#       Thus, the script itselft reset the monitor setup.
+#
+# Example of an event triggered by a connection/disconnection of a monitor
+# ACTION=change
+# DEVNAME=dri/card0
+# DEVPATH=/devices/pci0000:00/0000:00:02.0/drm/card0
+# DEVTYPE=drm_minor
+# HOTPLUG=1
+# MAJOR=226
+# MINOR=0
+# SUBSYSTEM=drm
+KERNEL=="card0", SUBSYSTEM=="drm", RUN+="/usr/local/bin/hotplug-monitor"

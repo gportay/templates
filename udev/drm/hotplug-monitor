@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# Copyright 2016 Gaël PORTAY <gael.portay@gmail.com>
+#
+# Licensed under the MIT license.
+#
+# See: https://wiki.archlinux.org/index.php/xrandr
+#
+
+DPDEV="${1:-DP1}"
+DPPOS="${2:-right}"
+if xrandr | grep -q "$DPDEV disconnected"; then
+	xrandr --output "LVDS1"  --auto --primary
+	xrandr --output "$DPDEV" --off
+else
+	xrandr --output "$DPDEV" --auto "--$DPPOS-of" "LVDS1" --primary
+fi
