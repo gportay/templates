@@ -30,9 +30,11 @@ all: 52-drm.rules
 install:
 	install -m 0755 -d $(DESTDIR)/etc/udev/rules.d/
 	install -m 0644 52-drm.rules $(DESTDIR)/etc/udev/rules.d/
+	sed -e 's,/usr/local/,$(PREFIX)/,' \
+	    -i $(DESTDIR)/etc/udev/rules.d/52-drm.rules
 	install -m 0755 -d $(DESTDIR)$(PREFIX)/bin/
 	install -m 0755 hotplug-monitor $(DESTDIR)$(PREFIX)/bin/
-	sed -e 's,/usr/local/bin/,$(PREFIX),' \
+	sed -e 's,/usr/local/,$(PREFIX)/,' \
 	    -e '/^DPDEV/s,=.*,="$(DPDEV)",' \
 	    -e '/^DPPOS/s,=.*,="$(DPPOS)",' \
 	    -i $(DESTDIR)$(PREFIX)/bin/hotplug-monitor
