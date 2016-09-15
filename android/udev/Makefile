@@ -4,8 +4,10 @@
 # Licensed under the MIT license.
 #
 
-USER	?= $(shell whoami)
-GROUP	?= android
+user	?= $(SUDO_USER)
+user	?= $(USER)
+user	?= $(shell whoami)
+group	?= android
 RULES	:= $(wildcard *.rules)
 RULES	:= $(filter-out 51-android.rules,$(RULES))
 
@@ -15,18 +17,26 @@ all: 51-android.rules
 	wget -S -O - http://source.android.com/source/$@ | \
 	sed -e "s/MODE=\"0600\"/MODE=\"0644\"/" \
 	    -e "s/OWNER/GROUP/" \
-	    -e "s/<username>/$(GROUP)/" | cat - $? | \
+	    -e "s/<username>/$(group)/" | cat - $? | \
 	tee $@
 
 setup:
-	groupadd --force --system $(GROUP)
-	usermod --append --groups $(GROUP) $(USER)
+	groupadd --force --system $(group)
+	usermod --append --groups $(group) $(user)
 
 install: 51-android.rules
+	install -m 0755 -d $(DESTDIR)/etc/udev/rules.d/
 	install -m 0644 $< $(DESTDIR)/etc/udev/rules.d/
 
 reload:
 	udevadm control --reload-rules
+
+adb_usb.ini: $(RULES)
+	sed -n 's,.*ATTR{idVendor}=="\([0-9a-fA-F]*\)".*,0x\1,p' $^ | sort | uniq >$@
+
+setup-adb: adb_usb.ini
+	install -m 0644 $< $(DESTDIR)$(HOME)/.android/
+
 clean:
-	rm -f 51-android.rules
+	rm -f 51-android.rules adb_usb.ini
 
