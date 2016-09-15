@@ -1,0 +1,2 @@
+# Mount serial disks
+KERNEL=="sd[a-z][0-9]*", RUN+="/usr/local/share/udev/sd.action"

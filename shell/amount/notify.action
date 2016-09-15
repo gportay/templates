@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+# Copyright 2016 Gaël PORTAY <gael.portay@gmail.com>
+#
+# Licensed under the MIT license.
+#
+
+if [ -z "$DISPLAY" ]; then
+	DISPLAY=":0"
+	XAUTHORITY="/var/run/lightdm/root/$DISPLAY"
+	export DISPLAY
+	export XAUTHORITY
+fi
+
+notify-send --app-name "amount" --urgency "normal" "$2" "$1-ed under $MOUNTDIR"

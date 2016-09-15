@@ -1,0 +1,17 @@
+#!/bin/bash
+#
+# Copyright 2016 Gaël PORTAY <gael.portay@gmail.com>
+#
+# Licensed under the MIT license.
+#
+
+if [ -n "$ID_FS_LABEL" ]; then
+	LABEL="$ID_FS_LABEL"
+	export LABEL
+fi
+
+if [ "$ACTION" = "remove" ]; then
+	umount "$DEVNAME"
+else
+	amount "$DEVNAME" -- -o "uid=$USER,gid=$USER"
+fi
