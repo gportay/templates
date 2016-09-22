@@ -80,6 +80,7 @@ install: 55-sd.rules
 	    -i $(DESTDIR)$(PREFIX)/bin/amount
 	install -m 0755 -d $(DESTDIR)$(PREFIX)/share/amount.d/
 	install -m 0755 notify.action $(DESTDIR)$(PREFIX)/share/amount.d/50notify
+	install -m 0755 i3blocks $(DESTDIR)$(PREFIX)/share/amount.d/90i3blocks
 
 .PHONY: udev-reload
 udev-reload:
