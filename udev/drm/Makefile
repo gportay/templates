@@ -38,6 +38,7 @@ install:
 	    -e '/^DPDEV/s,=.*,="$(DPDEV)",' \
 	    -e '/^DPPOS/s,=.*,="$(DPPOS)",' \
 	    -i $(DESTDIR)$(PREFIX)/bin/hotplug-monitor
+	install -m 0755 -d $(DESTDIR)$(PREFIX)/share/hotplug-monitor.d/
 
 .PHONY: udev-reload
 udev-reload:
