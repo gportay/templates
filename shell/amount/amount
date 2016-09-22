@@ -11,6 +11,30 @@ set -o pipefail
 VERSION="1.0"
 MOUNTPOINT="${MOUNTPOINT:-/media}"
 PREFIX="/usr/local"
+lock="/var/run/${0##*/}.lock"
+
+timed_lock() {
+	retry="${1:-10}"
+	retry="$((retry))"
+	while true; do
+		if [ ! -f "$lock" ]; then
+			break
+		elif [ "$retry" -eq 0 ]; then
+			return 1
+		fi
+
+		sleep 1
+		retry="$((retry-1))"
+	done
+
+	mkdir -p "${lock%/*}/"
+	trap "rm -r $lock" 0
+	touch "$lock"
+}
+
+unlock() {
+	rm -f "$lock"
+}
 
 die() {
 	echo "Error: $*" >&2
@@ -65,10 +89,15 @@ if [ -z "$mountdir" ]; then
 	mountdir="$MOUNTPOINT/${LABEL:-$devname}"
 fi
 
+if ! timed_lock "5"; then
+	die "$lock: Time-out!"
+fi
+
 while grep -q "$mountdir$ext" /proc/mounts; do
 	id="$((id + 1))"
 	ext="_$id"
 done
+unlock
 
 mountdir="$mountdir$ext"
 [ -d "$mountdir" ] || mkdir -p "$mountdir"
