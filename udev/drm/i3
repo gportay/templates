@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# Copyright 2016 Gaël PORTAY <gael.portay@gmail.com>
+#
+# Licensed under the MIT license.
+#
+
+# Static configuration
+if [ "$1" = "connected" ]; then
+	for i in $(seq 1 1 7); do
+		i3-msg "workspace $i; move workspace to output $3"
+	done
+fi
