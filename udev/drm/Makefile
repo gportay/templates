@@ -39,6 +39,7 @@ install:
 	    -e '/^DPPOS/s,=.*,="$(DPPOS)",' \
 	    -i $(DESTDIR)$(PREFIX)/bin/hotplug-monitor
 	install -m 0755 -d $(DESTDIR)$(PREFIX)/share/hotplug-monitor.d/
+	install -m 0755 i3 $(DESTDIR)$(PREFIX)/share/hotplug-monitor.d/90i3
 
 .PHONY: udev-reload
 udev-reload:
@@ -64,6 +65,14 @@ test:
 	xrandr --output "$(DPDEV)" --off && sleep 3
 	@echo "Simulate connection of $(DPDEV)..."
 	sudo $(MAKE) -f Makefile uevent-change
+
+.PHONY: i3
+i3:
+	@if grep '^bindsym $$mod+Mod1+Control+m' ~/.config/i3/config; then \
+		echo "Error: Binding \$$mod+Mod1+Control+m' is already taken! ^"; \
+		exit 1; \
+	fi
+	echo 'bindsym $$mod+Mod1+Control+m exec "$(PREFIX)/hotplug-monitor"' >>~/.config/i3/config
 
 .PHONY: clean
 clean:
