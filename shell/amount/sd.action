@@ -5,6 +5,33 @@
 # Licensed under the MIT license.
 #
 
+set -e
+
+lock="/var/run/${0##*/}.lock"
+
+timed_lock() {
+	retry="${1:-10}"
+	retry="$((retry))"
+	while true; do
+		if [ ! -f "$lock" ]; then
+			break
+		elif [ "$retry" -eq 0 ]; then
+			return 1
+		fi
+
+		sleep 1
+		retry="$((retry-1))"
+	done
+
+	mkdir -p "${lock%/*}/"
+	trap "rm -r $lock" 0
+	touch "$lock"
+}
+
+unlock() {
+	rm -f "$lock"
+}
+
 if [ -n "$ID_FS_LABEL" ]; then
 	LABEL="$ID_FS_LABEL"
 	export LABEL
@@ -13,5 +40,7 @@ fi
 if [ "$ACTION" = "remove" ]; then
 	umount "$DEVNAME"
 else
+	timed_lock "5"
 	amount "$DEVNAME" -- -o "uid=$USER,gid=$USER"
+	unlock
 fi
