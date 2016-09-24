@@ -41,6 +41,8 @@ if [ "$ACTION" = "remove" ]; then
 	umount "$DEVNAME"
 else
 	timed_lock "5"
-	amount "$DEVNAME" -- -o "uid=$USER,gid=$USER"
+	devname="${DEVNAME##*/}"
+	mountdir="/media/$USER/${ID_FS_LABEL:-$devname}"
+	amount "$DEVNAME" "$mountdir" -- -o "uid=$USER,gid=$USER"
 	unlock
 fi
