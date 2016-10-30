@@ -45,6 +45,8 @@ foreach function
 
 [amount](shell/amount/README.md) - serial-disk auto-mounter
 
+[autoextract.sh](shell/autoextract/README.md) - make a tar auto-extractable
+
 [cleanup.sh](shell/cleanup/README.md) - how to implement a shell destructor
 script in shell
 
