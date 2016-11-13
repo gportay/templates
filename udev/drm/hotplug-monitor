@@ -7,28 +7,30 @@
 # See: https://wiki.archlinux.org/index.php/xrandr
 #
 
-DPDEV="${1:-DP1}"
-DPPOS="${2:-right}"
+DPDEVS="${*:-HDMI1 DP1}"
 PREFIX=/usr/local
 dir="$PREFIX/share/${0##*/}.d/"
 
-if xrandr | grep -q "$DPDEV disconnected"; then
-	event="disconnected"
-else
-	event="connected"
-fi
+event="disconnected"
+for dpdev in $DPDEVS; do
+	if ! xrandr | grep -q "$dpdev disconnected"; then
+		event="connected"
+		eval dppos=\${$dpdev:-right}
+		break
+	fi
+	unset dpdev
+done
 
-if ! run-parts --exit-on-error --arg "$event" --arg "$DPDEV" --arg "$DPPOS" "$dir/"; then
+if ! run-parts --exit-on-error --arg "$event" --arg "$dpdev" --arg "$dppos" "$dir/"; then
 	echo "Warning: $dir: Halted!" >&2
 fi
 
 if [ "$event" = "disconnected" ]; then
 	xrandr --output "LVDS1"  --auto --primary
-	xrandr --output "$DPDEV" --off
 else
-	xrandr --output "$DPDEV" --auto "--$DPPOS-of" "LVDS1" --primary
+	xrandr --output "$dpdev" --auto "--$dppos-of" "LVDS1" --primary
 fi
 
-if ! run-parts --exit-on-error --arg "$event" --arg "$DPDEV" --arg "$DPPOS" "$dir/"; then
+if ! run-parts --exit-on-error --arg "$event" --arg "$dpdev" --arg "$dppos" "$dir/"; then
 	echo "Warning: $dir: Halted!" >&2
 fi
