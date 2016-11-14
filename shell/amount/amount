@@ -1,0 +1,82 @@
+#!/bin/bash
+#
+# Copyright 2016 Gaël PORTAY <gael.portay@gmail.com>
+#
+# Licensed under the MIT license.
+#
+
+set -e
+set -o pipefail
+
+VERSION="1.0"
+MOUNTPOINT="${MOUNTPOINT:-/media}"
+PREFIX="/usr/local"
+die() {
+	echo "Error: $*" >&2
+	exit 1
+}
+
+usage() {
+	cat <<EOF
+Usage: ${0##*/} [OPTIONS] DEVICE [MOUNTDIR=/media/<devname>] [-- MOUNT_OPTIONS]
+
+Auto-mount serial-disk under $MOUNTPOINT.
+
+Options:
+ -h or --help           Display this message.
+ -v or --version        Display the version.
+EOF
+}
+
+while [ $# -ne 0 ]; do
+	if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+		usage
+		exit 0
+	elif [ "$1" = "-V" ] || [ "$1" = "--version" ]; then
+		echo "$VERSION"
+		exit 0
+	elif [ "$1" = "--" ]; then
+		shift
+		break
+	elif [ -z "$devpath" ]; then
+		devpath="$1"
+	elif [ -z "$mountdir" ]; then
+		mountdir="$1"
+	else
+		usage
+		die "Too many arguments!"
+	fi
+	shift
+done
+
+if [ -z "$devpath" ]; then
+	usage
+	die "Too few arguments!"
+fi
+
+if grep -q "$devpath" /proc/mounts; then
+	echo "Warning: $devpath: Already mounted!" >&2
+	exit 0
+fi
+
+if [ -z "$mountdir" ]; then
+	devname="${devpath##*/}"
+	mountdir="$MOUNTPOINT/${LABEL:-$devname}"
+fi
+
+while grep -q "$mountdir$ext" /proc/mounts; do
+	id="$((id + 1))"
+	ext="_$id"
+done
+
+mountdir="$mountdir$ext"
+[ -d "$mountdir" ] || mkdir -p "$mountdir"
+mount "$@" "$devpath" "$mountdir"
+trap "echo $mountdir" 0
+
+dir="$PREFIX/share/${0##*/}.d"
+if [ -d "$dir/" ]; then
+	if ! MOUNTDIR="$mountdir" run-parts --arg "mount" --arg "$devname" "$dir/"; then
+		echo "Warning: $dir: Halted!" >&2
+	fi
+fi
