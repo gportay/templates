@@ -39,7 +39,6 @@ udev-reload:
 udev-monitor:
 	udevadm monitor --property
 
-
 adb_usb.ini: $(RULES)
 	sed -n 's,.*ATTR{idVendor}=="\([0-9a-fA-F]*\)".*,0x\1,p' $^ | sort | uniq >$@
 

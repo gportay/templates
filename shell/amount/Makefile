@@ -82,6 +82,21 @@ install: 55-sd.rules
 	install -m 0755 notify.action $(DESTDIR)$(PREFIX)/share/amount.d/50notify
 	install -m 0755 i3blocks $(DESTDIR)$(PREFIX)/share/amount.d/90i3blocks
 
+install-i3: install
+	install -m 0755 -d $(DESTDIR)$(PREFIX)/share/amount.d/
+	install -m 0755 i3blocks $(DESTDIR)$(PREFIX)/share/amount.d/90i3blocks
+	install -m 0755 -d $(DESTDIR)$(PREFIX)/libexec/i3blocks/
+	install -m 0755 serial_disk $(DESTDIR)$(PREFIX)/libexec/i3blocks/
+	@if [ -z "$(DESTDIR)" ]; then \
+		sed -e '/# Serial-Disks/,/^$$/d' \
+		    -i $(HOME)/.config/i3blocks/config; \
+		cat i3blocks.config >>$(HOME)/.config/i3blocks/config; \
+	else \
+		echo 'cat <<EOF >/home/$(user)/.config/i3blocks/config' ; \
+		cat i3blocks.config; \
+		echo 'EOF'; \
+	fi
+
 .PHONY: udev-reload
 udev-reload:
 	udevadm control --reload-rules
@@ -106,4 +121,5 @@ test:
 	$(MAKE) -f Makefile uevent-remove && sleep 3
 	@echo "Simulate connection of /dev/sdb1..."
 	$(MAKE) -f Makefile uevent-add
+
 

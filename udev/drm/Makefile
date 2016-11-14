@@ -5,14 +5,14 @@
 #
 
 PREFIX	?= /usr/local
-DPDEV	?= DP1
-DPPOS	?= right
+DPDEVS	?= HDMI2 DP2
+#DPPOS	?= right
 
 .PHONY: all
 all: 52-drm.rules
 	@echo "Please adapt the \`$(CURDIR)/hotplug-monitor' script according to your setup." >&2
 	@echo "Once ready, you may run:" >&2
-	@echo "$$ make install [PREFIX=$(PREFIX)] [DPDEV=$(DPDEV)] [DPPOS=$(DPPOS)]'" >&2
+	@echo "$$ make install [PREFIX=$(PREFIX)] [DPDEVS=$(DPDEVS)] [DPPOS=$(DPPOS)]'" >&2
 	@echo "to install udev rule(s) and script onto your system." >&2
 	@echo "" >&2
 	@echo "Here is an example where the extra monitor is connected through the second" >&2

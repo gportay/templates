@@ -21,12 +21,18 @@ for dpdev in $DPDEVS; do
 	unset dpdev
 done
 
+echo event=$event
+echo dpdev=$dpdev
+echo dppos=$dppos
+exit 1
+
 if ! run-parts --exit-on-error --arg "$event" --arg "$dpdev" --arg "$dppos" "$dir/"; then
 	echo "Warning: $dir: Halted!" >&2
 fi
 
 if [ "$event" = "disconnected" ]; then
 	xrandr --output "LVDS1"  --auto --primary
+#	xrandr --output "$dpdev" --off
 else
 	xrandr --output "$dpdev" --auto "--$dppos-of" "LVDS1" --primary
 fi
