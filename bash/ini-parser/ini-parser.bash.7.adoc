@@ -1,0 +1,133 @@
+= ini-parser.bash(7)
+:doctype: manpage
+:author: Gaël PORTAY
+:email: gael.portay@savoirfairelinux.com
+:lang: en
+:man manual: ini.bash Manual
+:man source: ini.bash 1.0
+
+== NAME
+
+ini-parser.bash - an ini-style parser written in bash for bash
+
+== SYNOPSIS
+
+*ini_parser* INIFILE
+
+== DESCRIPTION
+
+*ini-parser.bash(7)* is an ingenious _ini-style_ parser written in _bash_ for
+_bash_.
+
+It converts the content of an _ini_ file into _shell_ scripting and source it.
+Section are called individually and every _ini_ properties are accessible as
+_shell_ variables.
+
+Keep in mind that the content of an _ini_ section is _shell_ scripting, and
+thus _shell_ rules applies.
+
+== EXAMPLES
+
+From the following _example.ini_ file
+
+	[section_1]
+	key1=first
+	key2=second
+	...
+	[section_n]
+	keyn=last
+
+A simple _bash_ script to echo properties would look like
+
+	#!/bin/bash
+	. /usr/libexec/ini-parser.bash
+
+	ini_parser example.ini
+
+	# load section_1
+	ini_section_1
+	echo key_1: $key1, key2: $key2
+
+	...
+
+	# load section_n
+	ini_section_n
+	echo keyn: $keyn
+
+## LIMITATIONS
+
+Turning _ini_ format into _shell_ scripting brings both _shell_ limitations and
+_shell_ strength.
+
+Empty keys are invalid
+
+	[section]
+	emptykey
+
+	section() {
+	emptykey
+	:;}
+
+	emptykey: command not found
+
+Spaces in values must be escaped. Instead, the value can be _quoted_
+or _double-quoted_
+
+	[section]
+	key=space value
+
+	section() {
+	key=space value
+	:;}
+
+	value: command not found
+
+Section with spaces are not allowed
+
+	[space separated section]
+
+	ini_space separated section() {
+	:;}
+
+	ini_space: command not found
+
+Starting a line using an opening bracket is forbidden
+
+	[missing_close_bracket_section
+
+	missing_close_bracket_section
+	:;}
+
+	ini_missing_close_bracket_section: command not found
+
+Do not write shell commands as keys, they will be interpreted!
+
+	[hack]
+	echo This should not be done
+	key=value; rm -rf *
+
+Do not make recursive calls!
+
+	[recursive]
+	ini_recursive
+
+== BUGS
+
+Report bugs at *https://github.com/gazoo74/templates/issues*
+
+== AUTHOR
+
+Written by Gaël PORTAY *gael.portay@savoirfairelinux.com*
+
+Widely inspired on work from Andrés J. Díaz *http://theoldschooldevops.com/2008/02/09/bash-ini-parser/*.
+
+== COPYRIGHT
+
+Copyright (c) 2017 Gaël PORTAY
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the MIT License.
+
+== SEE ALSO
+
+bash(1)
