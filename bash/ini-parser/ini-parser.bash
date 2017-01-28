@@ -25,6 +25,12 @@
 ini_parser() {
 	local ifs=$IFS
 
+	# bash 4.3 and later break compatibility
+	if [ "$BASH_VERSINFO" -ge 4 -a "${BASH_VERSINFO[1]}" -gt 2 ]; then
+		local compat42=1
+		shopt -s compat42
+	fi
+
 	# Read file content into variable
 	ini="$(<"$1")"
 
@@ -42,6 +48,11 @@ ini_parser() {
 
 	# Evaluate translation
 	eval "$(echo "${ini[*]}")"
+
+	# Restore previous bash behaviour
+	if [ "$compat42" = "1" ]; then
+		shopt -u compat42
+	fi
 
 	IFS=$ifs
 }

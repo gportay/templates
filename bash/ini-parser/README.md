@@ -79,6 +79,12 @@ The algorithm needs *bash* as only requirement.
 It uses _arrays_ to handle the file content line-by-line, and _replacement
 substition_.
 
+Since version _4.3_, bash has changes substitution behaviors and script needs
+to set the flag _compat42_.
+
+	If set, bash does not process the replacement string in the pattern
+	substitution word expansion using quote removal.
+
 ## BUGS
 
 Report bugs at *https://github.com/gazoo74/templates/issues*
