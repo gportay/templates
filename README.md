@@ -3,6 +3,9 @@ Some templates source files
 
 ## C
 
+[hexdump](c/hexdump/README.md) - display buffer content in hexadecimal and
+ascii
+
 [verrevcmp](pkg/version-lt/README.md) - comparison of version numbers
 
 ## MAKEFILE
