@@ -1,6 +1,11 @@
 # templates
 Some templates source files
 
+## MAKEFILE
+
+[foreach](makefile/foreach/README.md) - build a repository of archive using
+foreach function
+
 ## SHELL/BASH
 
 [amount](shell/amount/README.md) - serial-disk auto-mounter
