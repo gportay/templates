@@ -1,6 +1,10 @@
 # templates
 Some templates source files
 
+## C
+
+[verrevcmp](pkg/version-lt/README.md) - comparison of version numbers
+
 ## MAKEFILE
 
 [openssl](openssl/genkeys/README.md) - provides implicite rules to generate
@@ -18,3 +22,5 @@ script in shell
 
 [ini-parser.bash](bash/ini-parser/README.md) - an ini-style parser written in
 bash for bash
+
+[version-lt.sh](pkg/version-lt/README.md) - prints the lower version
