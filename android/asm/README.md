@@ -53,12 +53,12 @@ to download sources to current directory.
 ## DESCRIPTION
 
 [asm-setup](asm-install) is a _Makefile_ based installer. It is an example of
-how to provide an alternative to _shell_ scripting to do thing. The _Makefile_
+how to provide an alternative to _shell_ scripting to do things. The _Makefile_
 must be executable and its shebang sets to _#!/usr/bin/make -f_.
 
 Even if this example is not appropriate, using **make(1)** have several
 advantages. It makes things easier to parallelize tasks and to avoid redoing
-tasks from scracth when they are done.
+tasks from scratch when they are done.
 
 ## EXAMPLES
 
