@@ -7,6 +7,8 @@ Some templates source files
 
 ## MAKEFILE
 
+[asm-setup](android/asm) - asm installer written in make
+
 [openssl](openssl/genkeys/README.md) - provides implicite rules to generate
 openssl RSA keys
 
