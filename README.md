@@ -3,6 +3,9 @@ Some templates source files
 
 ## MAKEFILE
 
+[openssl](openssl/genkeys/README.md) - provides implicite rules to generate
+openssl RSA keys
+
 [foreach](makefile/foreach/README.md) - build a repository of archive using
 foreach function
 
