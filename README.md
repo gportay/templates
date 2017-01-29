@@ -9,6 +9,8 @@ Some templates source files
 
 [asm-setup](android/asm) - asm installer written in make
 
+[udev](android/udev) - udev rules installer for oneplus devices
+
 [openssl](openssl/genkeys/README.md) - provides implicite rules to generate
 openssl RSA keys
 
