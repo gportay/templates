@@ -10,6 +10,8 @@ Some templates source files
 [hexdump](c/hexdump/README.md) - display buffer content in hexadecimal and
 ascii
 
+[mime-types](c/regex/README.md) - example of how to use regex API
+
 [verrevcmp](pkg/version-lt/README.md) - comparison of version numbers
 
 ## MAKEFILE
