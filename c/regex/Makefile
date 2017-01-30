@@ -38,5 +38,5 @@ iana-mimes.h:
 	make --silent iana-mimes >$@
 
 clean:
-	rm -f *.csv *.o mime-types.h mime-types
+	rm -f *.csv *.o iana-mimes.txt mime-types.h mime-types
 
