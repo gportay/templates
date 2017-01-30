@@ -1,5 +1,7 @@
 # templates
-Some templates source files
+
+Here remains some of templates and examples of source files I developped.
+Mostly *C/C++*, *Shell/Bash* and *Makefile*.
 
 ## C/C++
 
@@ -40,3 +42,14 @@ script in shell
 bash for bash
 
 [version-lt.sh](pkg/version-lt/README.md) - prints the lower version
+
+## AUTHOR
+
+Written by Gaël PORTAY *gael.portay@gmail.com*
+
+## COPYRIGHT
+
+Copyright (c) 2015-2017 Gaël PORTAY
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the MIT License.
