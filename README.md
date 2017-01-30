@@ -3,6 +3,8 @@ Some templates source files
 
 ## C
 
+[epoll](c/epoll/README.md) - example of how to use epoll API
+
 [getopt](c/getopt/README.md) - example of how to use getopt\_long function
 
 [hexdump](c/hexdump/README.md) - display buffer content in hexadecimal and
