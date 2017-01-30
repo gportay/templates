@@ -1,7 +1,10 @@
 # templates
 Some templates source files
 
-## C
+## C/C++
+
+[addressbook](c++/protobuf/README.md) - example of how to use protobuf API and
+create a Makefile
 
 [epoll](c/epoll/README.md) - example of how to use epoll API
 
