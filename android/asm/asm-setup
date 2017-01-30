@@ -1,6 +1,6 @@
 #!/usr/bin/gmake -sf
 #
-# Copyright 2016 Gaël PORTAY <gael.portay@gmail.com>
+# Copyright 2016-2017 Gaël PORTAY <gael.portay@gmail.com>
 #
 # Licensed under the MIT license.
 #
@@ -46,6 +46,10 @@ help:
 	@echo '       $(__make) [un]install [PREFIX=/usr] [DESTDIR=] to install binary to system.'
 	@echo '       $(__make) [un]install-user                     to install binary to current user.'
 	@echo '       $(__make) android-screen-monitor               to fetch sources.'
+	@echo '       $(__make) clean                                to remove temporary files.'
+ifneq ($(__makefile),Makefile)
+	@echo '       $(__make) Makefile                             to create a Makefile symlink and then run make frontend.'
+endif
 	@echo '       $(__make) help                                 to display this message.'
 
 index.html:
