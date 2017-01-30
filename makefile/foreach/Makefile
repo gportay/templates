@@ -1,6 +1,6 @@
-#!/usr/bin/gmake -f
+#!/usr/bin/make -f
 #
-# Copyright 2016 Gaël PORTAY <gael.portay@gmail.com>
+# Copyright 2016-2017 Gaël PORTAY <gael.portay@gmail.com>
 #
 # Licensed under the MIT license.
 #

@@ -1,4 +1,4 @@
-#!/usr/bin/gmake -sf
+#!/usr/bin/make -sf
 #
 # Copyright 2016-2017 Gaël PORTAY <gael.portay@gmail.com>
 #
