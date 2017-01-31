@@ -44,7 +44,7 @@ done
 
 hash="$(realpath "Dockerfile" | sha256sum - | cut -d' ' -f1)"
 tag="dsh-$hash"
-docker_build "Dockerfile" "$tag"
+docker_build "Dockerfile" "$tag" >&2
 
 if [ "$#" -eq 0 ]; then
 	opts+=" --tty"
