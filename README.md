@@ -38,6 +38,9 @@ foreach function
 [cleanup.sh](shell/cleanup/README.md) - how to implement a shell destructor
 script in shell
 
+[docker-shell](docker/shell/README.md) - run a user shell in a new container
+with cwd bind mounted
+
 [ini-parser.bash](bash/ini-parser/README.md) - an ini-style parser written in
 bash for bash
 
