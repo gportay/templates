@@ -1,0 +1,57 @@
+#!/bin/sh
+#
+# Copyright (c) 2017 Gaël PORTAY <gael.portay@savoirfairelinux.com>
+#
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the MIT License.
+#
+
+set -e
+
+usage() {
+	cat <<EOF
+Usage: ${0##*/} [OPTIONS] [--] [COMMAND] [ARG...]
+       ${0##*/} [OPTIONS]  -c   COMMAND  [ARG...]
+
+Run a shell as user in a new container and bind mount cwd
+
+Options:
+      --help                    Print usage
+EOF
+}
+
+docker_build() {
+	cat "$1" - <<EOF | docker build --tag "$2" -
+RUN groupadd --non-unique --gid $GROUPS $USER
+RUN useradd  --non-unique --gid $GROUPS --uid $UID --create-home --home-dir /home/$USER --shell $SHELL $USER
+EOF
+}
+
+opts="--rm --volume $PWD:/home/$USER"
+while [ "$#" -ne 0 ]; do
+	if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+		usage
+		exit 0
+	elif [ "$1" = "-c" ] || [ "$1" = "--" ]; then
+		shift
+		break
+	else
+		break
+	fi
+	shift
+
+done
+
+hash="$(realpath "Dockerfile" | sha256sum - | cut -d' ' -f1)"
+tag="dsh-$hash"
+docker_build "Dockerfile" "$tag" >&2
+
+if [ "$#" -eq 0 ]; then
+	opts+=" --tty"
+	opts+=" --interactive"
+	set -- su -l $USER
+else
+	set -- su -l $USER -c "$*"
+fi
+
+exec docker run $opts "$tag" "$@"
