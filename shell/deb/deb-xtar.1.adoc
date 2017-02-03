@@ -1,0 +1,51 @@
+= deb-xtar(1)
+:doctype: manpage
+:author: Gaël PORTAY
+:email: gael.portay@savoirfairelinux.com
+:lang: en
+:man manual: deb-xtar Manual
+:man source: deb-xtar 1.0
+
+== NAME
+
+deb-xtar - restore files from nested data.tar.gz archive of a debian package
+
+deb-control-xtar - restore files from nested control.tar.gz archive of a debian
+package
+
+== SYNOPSIS
+
+*deb-xtar* [OPTION...] [-f DEBIAN]
+
+*deb-control-xtar* [OPTION...] [-f DEBIAN]
+
+== DESCRIPTION
+
+*deb-xtar(1)* can restore individual files from the nested data.tar.gz archive
+of a debian package.
+
+*deb-control-xtar(1)* can restore individual files from the nested
+control.tar.gz archive of a debian package.
+
+== OPTIONS
+
+Any *tar(1)* options.
+
+== BUGS
+
+Report bugs at *https://github.com/gazoo74/templates/issues*
+
+== AUTHOR
+
+Written by Gaël PORTAY *gael.portay@savoirfairelinux.com*
+
+== COPYRIGHT
+
+Copyright (c) 2017 Gaël PORTAY
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the MIT License.
+
+== SEE ALSO
+
+tar(1)
