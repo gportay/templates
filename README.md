@@ -38,6 +38,9 @@ foreach function
 [cleanup.sh](shell/cleanup/README.md) - how to implement a shell destructor
 script in shell
 
+[deb-xtar](shell/deb/README.md) - restore files from nested data.tar.gz archive
+of a debian package
+
 [docker-shell](docker/shell/README.md) - run a user shell in a new container
 with cwd bind mounted
 

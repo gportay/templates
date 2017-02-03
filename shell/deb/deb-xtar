@@ -1,0 +1,39 @@
+#!/bin/bash
+#
+# Copyright (c) 2017 Gaël PORTAY <gael.portay@savoirfairelinux.com>
+#
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the MIT License.
+#
+
+member="${0##*/}"
+member="${member#deb-}"
+member="${member%-xtar}"
+
+if [ "$member" = "xtar" ]; then
+	member="data"
+fi
+
+if [ "$#" -eq 0 ]; then
+	cat <<EOF
+Usage: ${0##*/} [OPTION...] [-f DEBIAN]
+
+${0##*/} can restore individual files from the nested $member.tar.gz archive of
+a debian package.
+
+Examples:
+  tar -tvf package.deb         # List all files in package.deb verbosely.
+  tar -xf package.deb          # Extract all files from archive.tar.
+EOF
+	exit 1
+fi
+
+opts="${1/f/}"
+if [ "$opts" != "$1" ]; then
+	shift
+	tar="-f $1"
+fi
+shift
+
+# shellcheck disable=SC2086
+tar xz $tar ./$member.tar.gz -O | tar $opts "$@"
