@@ -17,6 +17,8 @@ ascii
 
 [ini](c/parser/ini/README.md) - simple C ini parser without context
 
+[line](c/parser/line/README.md) - simple C line parser without context
+
 [mime-types](c/regex/README.md) - example of how to use regex API
 
 [verrevcmp](pkg/version-lt/README.md) - comparison of version numbers
