@@ -196,7 +196,7 @@ int main(int argc, char * const argv[])
 			break;
 		}
 		buf[s] = 0;
-		hexdump(size, buf, s);
+		fhexdump(stdout, size, buf, s);
 		size += s;
 
 		if (size)

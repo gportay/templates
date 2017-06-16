@@ -11,6 +11,9 @@
 **static void hexdump(unsigned int** _address_**, const unsigned char**
 \*_buf_**, unsigned int** _bufsize_**);**
 
+**static void fhexdump(FILE** \*_f_**, unsigned int** _address_
+**, const unsigned char** \*_buf_**, unsigned int** _bufsize_**);**
+
 **static int** _DUMPHEADER_ **= 1;**
 
 **static int** _DUMPFOOTER_ = **1;**
@@ -24,7 +27,8 @@
 ## DESCRIPTION
 
 **hexdump** imitates what **hexdump(1)** does when it is invoked along with
-_-C_ argument.
+_-C_ argument. The function **hexdump(3)** writes output to stdout, the standard
+output stream; **fhexdump(3)** writes output to the given output stream.
 
 The **hexdump** function dumps the _bufsize_ bytes of input _buf_ by rows,
 first in hexadecimal and then in _ASCII_. Non-printable characters are replaced
