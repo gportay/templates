@@ -45,7 +45,7 @@ struct options_t {
 	int timeout;
 };
 
-inline const char *applet(const char *arg0)
+static inline const char *applet(const char *arg0)
 {
 	char *s = strrchr(arg0, '/');
 
