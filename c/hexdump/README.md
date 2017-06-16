@@ -57,7 +57,7 @@ _ROWSIZE_ values.
 ## EXAMPLES
 
 [hexdump.c](hexdump.c#L172-L204) is a good example of how to use the
-**hexdump**function.
+**hexdump** function.
 
 ## AUTHOR
 
