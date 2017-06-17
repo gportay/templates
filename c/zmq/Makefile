@@ -26,11 +26,15 @@ CFLAGS += -std=c99 -Werror -Wextra -g
 LOADLIBES += -lzmq -lczmq
 
 .PHONY: all
-all: subscriber publisher
+all: subscriber publisher epoll-publisher
 
 .PHONY: test-publisher
 test-publisher: publisher
 	./$< "tcp://*:5555" test message -D
+
+.PHONY: test-epoll-publisher
+test-epoll-publisher: epoll-publisher
+	./$< "tcp://*:5555" test -D
 
 .PHONY: test-subscriber
 test-subscriber: subscriber
@@ -38,4 +42,4 @@ test-subscriber: subscriber
 
 .PHONY: clean
 clean:
-	rm -f subscriber publisher
+	rm -f subscriber publisher epoll-publisher

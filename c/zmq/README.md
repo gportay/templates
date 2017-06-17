@@ -4,11 +4,15 @@
 
 **publisher** - simple ZMQ publisher
 
+**epoll-publisher** - simple ZMQ publisher
+
 **subscriber** - simple ZMQ subscriber
 
 ## SYNOPSIS
 
 **publisher** [OPTIONS] ENDPOINT TOPIC MESSAGE
+
+**epoll-publisher** [OPTIONS] ENDPOINT TOPIC [FILE=STDIN]
 
 **subscriber** [OPTIONS] ENDPOINT TOPIC
 
@@ -17,6 +21,9 @@
 **publisher(1)** binds to _ENDPOINT_ and publishes a _MESSAGE_ with _TOPIC_
 every _1000 applet milli-seconds. The number of milli-seconds can be specified
 using option _-t_.
+
+**epoll-publisher(1)** binds to _ENDPOINT_ and publishes every line read from
+_FILE_ to _TOPIC_.
 
 **subscriber(1)** connects to _ENDPOINT_ and subscribes to _TOPIC_. Every
 messages received are printed to _stdout_.
