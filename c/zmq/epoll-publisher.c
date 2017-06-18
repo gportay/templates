@@ -63,6 +63,11 @@ static inline const char *applet(const char *arg0)
 	return s+1;
 }
 
+static inline void _perror(const char *s, int error)
+{
+	fprintf(stderr, "%s: %s\n", s, strerror(error));
+}
+
 static inline void zmq_perror(const char *s)
 {
 	fprintf(stderr, "%s: %s\n", s, zmq_strerror(zmq_errno()));
@@ -129,6 +134,7 @@ int publish_wait(int timeout, const char *endpoint, const char *publish,
 			break;
 		} else if (!ret) {
 			verbose("Expired!\n");
+			_perror("epoll_wait", ETIME);
 			continue;
 		}
 
