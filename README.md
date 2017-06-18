@@ -19,9 +19,15 @@ ascii
 
 [line](c/parser/line/README.md) - simple C line parser without context
 
+[publisher,epoll-publisher,subscriber](c/zmq/README.md) - simple ZMQ publisher
+and subscriber applets
+
 [mime-types](c/regex/README.md) - example of how to use regex API
 
 [verrevcmp](pkg/version-lt/README.md) - comparison of version numbers
+
+[zpc-publisher,zpc-subscriber](c/zmq+protobuf/README.md) - simple ZMQ publisher
+and subscriber applets using protobuf messages
 
 ## MAKEFILE
 
