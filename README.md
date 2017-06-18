@@ -26,6 +26,9 @@ and subscriber applets
 
 [verrevcmp](pkg/version-lt/README.md) - comparison of version numbers
 
+[zpc-publisher,zpc-subscriber](c/zmq+protobuf/README.md) - simple ZMQ publisher
+and subscriber applets using protobuf messages
+
 ## MAKEFILE
 
 [asm-setup](android/asm) - asm installer written in make
