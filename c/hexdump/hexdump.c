@@ -45,7 +45,7 @@ struct options_t {
 	int timeout;
 };
 
-inline const char *applet(const char *arg0)
+static inline const char *applet(const char *arg0)
 {
 	char *s = strrchr(arg0, '/');
 
@@ -196,7 +196,7 @@ int main(int argc, char * const argv[])
 			break;
 		}
 		buf[s] = 0;
-		hexdump(size, buf, s);
+		fhexdump(stdout, size, buf, s);
 		size += s;
 
 		if (size)

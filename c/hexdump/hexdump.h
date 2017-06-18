@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Gaël PORTAY <gael.portay@gmail.com>
+ * Copyright (c) 2015-2017 Gaël PORTAY <gael.portay@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,10 +25,6 @@
 #ifndef __HEXDUMP_H__
 #define __HEXDUMP_H__
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif /* HAVE_CONFIG_H */
-
 #include <stdio.h>
 
 #define __min(a,b) \
@@ -42,34 +38,36 @@ static int DUMPADDR = 1;
 static unsigned int ROWSIZE = 0x10;
 static char EMPTYBYTE = ' ';
 
-static void hexdump_line(const unsigned char *buf, unsigned int bufsize)
+static inline
+void hexdump_line(FILE *f, const void *buffer, unsigned int bufsize)
 {
+	const unsigned char *buf = (unsigned char *)buffer;
 	unsigned int j;
 
-	for (j = 0; j < __min(ROWSIZE, bufsize); j++) {
-		printf(" %02x", buf[j]);
-	}
+	for (j = 0; j < __min(ROWSIZE, bufsize); j++)
+		fprintf(f, " %02x", buf[j]);
 
-	for (j = 0; j < __min(ROWSIZE-bufsize, ROWSIZE); j++) {
-		printf(" %-2c", EMPTYBYTE);
-	}
+	for (j = 0; j < __min(ROWSIZE-bufsize, ROWSIZE); j++)
+		fprintf(f, " %-2c", EMPTYBYTE);
 
-	printf("\t");
+	fprintf(f, "\t");
 
 	for (j = 0; j < __min(ROWSIZE, bufsize); j++) {
 		if ((buf[j] < 0x20) || (buf[j] >= 0x7F))
-			printf(".");
+			fprintf(f, ".");
 		else
-			printf("%c", (char) buf[j]);
+			fprintf(f, "%c", (char)buf[j]);
 	}
 
-	for (j = 0; j < __min(ROWSIZE-bufsize, ROWSIZE); j++) {
-		printf("%c", EMPTYBYTE);
-	}
+	for (j = 0; j < __min(ROWSIZE-bufsize, ROWSIZE); j++)
+		fprintf(f, "%c", EMPTYBYTE);
 }
 
-static void hexdump(unsigned int address, const unsigned char *buf, unsigned int bufsize)
+static inline
+void fhexdump(FILE *f, unsigned int address, const void *buffer,
+	      unsigned int bufsize)
 {
+	const unsigned char *buf = (const unsigned char *)buffer;
 	unsigned int r, row, size = 0;
 
 	row = bufsize / ROWSIZE;
@@ -77,27 +75,34 @@ static void hexdump(unsigned int address, const unsigned char *buf, unsigned int
 		row++;
 
 	if (DUMPHEADER) {
-		printf("%s:", "@address");
+		fprintf(f, "%s:", "@address");
 		for (r = 0; r < ROWSIZE; r ++)
-			printf(" %02x", r);
-		printf("\n");
+			fprintf(f, " %02x", r);
+		fprintf(f, "\n");
 	}
 
 	for (r = 0; r < row; r++) {
 		unsigned int s = __min(bufsize - size, ROWSIZE);
 
 		if (DUMPADDR)
-			printf("%08x:", address + size);
+			fprintf(f, "%08x:", address + size);
 
-		hexdump_line(buf, s);
+		hexdump_line(f, buf, s);
 		buf += s;
 		size += s;
-		printf("\n");
+		fprintf(f, "\n");
 	}
 
-	if (DUMPFOOTER) {
-		printf("%08x\n", address + size);
-	}
+	if (DUMPFOOTER)
+		fprintf(f, "%08x\n", address + size);
 }
+
+static inline
+void hexdump(unsigned int address, const void *buffer, unsigned int bufsize)
+{
+	return fhexdump(stdout, address, buffer, bufsize);
+}
+
+#undef __min
 
 #endif /* __HEXDUMP_H__ */
