@@ -59,6 +59,8 @@ with cwd bind mounted
 [ini-parser.bash](bash/ini-parser/README.md) - an ini-style parser written in
 bash for bash
 
+[prompt_yes_no](shell/prompt/README.md) - prompt user for a yes/no reply
+
 [version-lt.sh](pkg/version-lt/README.md) - prints the lower version
 
 ## AUTHOR

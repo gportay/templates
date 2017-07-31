@@ -1,0 +1,35 @@
+#!/bin/sh
+#
+# Copyright 2015-2017 Gaël PORTAY <gael.portay@gmail.com>
+#
+# Licensed under the MIT license.
+#
+
+prompt_yes_no() {
+	echo -n "$1" " $2? "
+	local resp
+
+	while read -r resp; do
+		[ -n "$resp" ] || break
+
+		resp="$(echo "$resp" | sed -e 's/.*/\L&/')"
+		case "$resp" in
+		y|yes|n|no) break;;
+		esac
+
+		echo "Invalid response!" >&2;
+		echo -n "$1" " $2? "
+		unset resp
+	done
+
+	if [ -z "$resp" ]; then
+		resp="$(echo "$2" | sed -e 's,^\[\(.*\)/.*\]$,\1,')"
+	fi
+
+	resp="$(echo "$resp" | sed -e 's/.*/\L&/')"
+	case "$resp" in
+	y|yes)	return 0;;
+	esac
+
+	return 1
+}
