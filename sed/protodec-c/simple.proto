@@ -1,0 +1,9 @@
+/* https://developers.google.com/protocol-buffers/docs/proto#simple */
+
+syntax = "proto2";
+
+message SearchRequest {
+	required string query = 1;
+	optional int32 page_number = 2;
+	optional int32 result_per_page = 3;
+}

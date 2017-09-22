@@ -1,0 +1,62 @@
+= protodec-c(1)
+:doctype: manpage
+:author: Gaël PORTAY
+:email: gael.portay@savoirfairelinux.com
+:lang: en
+:man manual: protodec-c Manual
+:man source: protodec-c 1.0
+
+== NAME
+
+protodec-c - decompile protobuf C header
+
+== SYNOPSIS
+
+*protodec-c* [PROTO_C_FILE...]
+
+== DESCRIPTION
+
+*protodec-c(1)* decompiles protobuf C header to stdout.
+
+== EXAMPLES
+
+Create a simple proto file.
+
+	$ cat <<EOF >simple.proto
+	/* https://developers.google.com/protocol-buffers/docs/proto#simple */
+	syntax = "proto2";
+	message SearchRequest {
+		required string query = 1;
+		optional int32 page_number = 2;
+		optional int32 result_per_page = 3;
+	}
+	EOF
+
+Compile a C output.
+
+	$ protoc-c --c_out=. simple.proto
+
+Decompile it.
+
+	$ protodec-c simple.pb-c.h
+	message SearchRequest {
+	  string query;
+	  optional int32 page_number;
+	  optional int32 result_per_page;
+	}
+
+== BUGS
+
+Report bugs at *https://github.com/gazoo74/templates/issues*
+
+== AUTHOR
+
+Written by Gaël PORTAY *gael.portay@savoirfairelinux.com*
+
+== COPYRIGHT
+
+Copyright (c) 2017 Gaël PORTAY
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License version 3 as published by the
+Free Software Foundation.

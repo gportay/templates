@@ -63,6 +63,10 @@ bash for bash
 
 [version-lt.sh](pkg/version-lt/README.md) - prints the lower version
 
+## SED
+
+[protodec-c.sed](sed/protodec-c/README.md) - decompile protobuf C header
+
 ## AUTHOR
 
 Written by Gaël PORTAY *gael.portay@gmail.com*
