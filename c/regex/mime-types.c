@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2016 Gaël PORTAY <gael.portay@gmail.com>
+ * Copyright (c) 2016-2017 Gaël PORTAY <gael.portay@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -47,14 +47,13 @@ struct options_t {
 	;
 };
 
-static inline const char *name(const char *arg0)
+static inline const char *applet(const char *arg0)
 {
-	const char *s = strrchr(arg0, '/');
-
+	char *s = strrchr(arg0, '/');
 	if (!s)
 		return arg0;
 
-	return ++s;
+	return s+1;
 }
 
 void usage(FILE * f, char * const arg0)
@@ -65,7 +64,7 @@ void usage(FILE * f, char * const arg0)
 		   " -D or --debug      Turn on debug messages.\n"
 		   " -V or --version    Display the version.\n"
 		   " -h or --help       Display this message.\n"
-		   "", name(arg0));
+		   "", applet(arg0));
 }
 
 int parse_arguments(struct options_t *opts, int argc, char * const argv[])
@@ -127,7 +126,7 @@ int main(int argc, char * const argv[])
 
 	int argi = parse_arguments(&options, argc, argv);
 	if (argi < 1) {
-		fprintf(stderr, "Error: Too few arguments!\n");
+		fprintf(stderr, "Error: Invalid argument!\n");
 		exit(EXIT_FAILURE);
 	} else if ((argc - argi) < 1) {
 		usage(stderr, argv[0]);
