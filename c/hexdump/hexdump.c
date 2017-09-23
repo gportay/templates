@@ -76,8 +76,8 @@ int parse_arguments(struct options_t *opts, int argc, char * const argv[])
 	};
 
 	for (;;) {
-		int option_index;
-		int c = getopt_long(argc, argv, "t:s:Vh", long_options, &option_index);
+		int index;
+		int c = getopt_long(argc, argv, "t:s:Vh", long_options, &index);
 		if (c == -1) {
 			break;
 		}
