@@ -44,3 +44,20 @@ test-subscriber: zpc-subscriber
 .PHONY: clean
 clean:
 	rm -f *.o *.pb-c.* zpc-subscriber zpc-publisher
+
+.PHONY: decompile
+decompile: zpc-message.pb-c.h
+	./deprotoc-c $<
+
+test-zpc-message.pb-c.h:
+test-gateway.pb-c.h:
+test-nwkmgr.pb-c.h:
+
+test-%: %
+	./deprotoc-c $< >$<.proto
+	cat $<.proto
+	protoc-c --c_out=. $<.proto
+	@sed -e '/PROTOBUF_C_.*__INCLUDED/d' $<.pb-c.h >$<.1
+	@sed -e '/PROTOBUF_C_.*__INCLUDED/d' $<.pb-c.h >$<.2
+	diff  $<.1  $<.2
+
