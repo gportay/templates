@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Gaël PORTAY <gael.portay@gmail.com>
+ * Copyright (c) 2015-2017 Gaël PORTAY <gael.portay@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -48,7 +48,6 @@ struct options_t {
 static inline const char *applet(const char *arg0)
 {
 	char *s = strrchr(arg0, '/');
-
 	if (!s)
 		return arg0;
 
@@ -62,7 +61,7 @@ void usage(FILE * f, char * const arg0)
 		   " -t or --timeout SECOND Set time-out in seconds [default=-1].\n"
 		   " -s or --row-size SIZE  Set row size in bytes [default=16].\n"
 		   " -h or --help           Display this message.\n"
-		   " -v or --version        Display the version.\n"
+		   " -V or --version        Display the version.\n"
 		   "", applet(arg0));
 }
 
@@ -71,14 +70,14 @@ int parse_arguments(struct options_t *opts, int argc, char * const argv[])
 	static const struct option long_options[] = {
 		{ "timeout",  required_argument, NULL, 't' },
 		{ "row-size", required_argument, NULL, 's' },
-		{ "version",  no_argument,       NULL, 'v' },
+		{ "version",  no_argument,       NULL, 'V' },
 		{ "help",     no_argument,       NULL, 'h' },
 		{ NULL,       no_argument,       NULL, 0   }
 	};
 
 	for (;;) {
 		int option_index;
-		int c = getopt_long(argc, argv, "t:s:vh", long_options, &option_index);
+		int c = getopt_long(argc, argv, "t:s:Vh", long_options, &option_index);
 		if (c == -1) {
 			break;
 		}
@@ -109,7 +108,7 @@ int parse_arguments(struct options_t *opts, int argc, char * const argv[])
 			break;
 		}
 
-		case 'v':
+		case 'V':
 			printf("%s\n", VERSION);
 			exit(EXIT_SUCCESS);
 			break;
@@ -145,9 +144,9 @@ int main(int argc, char * const argv[])
 
 	int argi = parse_arguments(&options, argc, argv);
 	if (argi < 0) {
+		fprintf(stderr, "Error: Invalid argument!\n");
 		exit(EXIT_FAILURE);
-	}
-	else if (argc - argi >= 1) {
+	} else if (argc - argi >= 1) {
 		usage(stdout, argv[0]);
 		fprintf(stderr, "Error: Too many arguments!\n");
 		exit(EXIT_FAILURE);
