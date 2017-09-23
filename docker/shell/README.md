@@ -1,5 +1,8 @@
 # docker-shell(1)
 
+_Important_: [docker-shell](docker-shell) was a proof of concept. Please see
+[dosh](https://github.com/gazoo74/dosh) for a full featured utility.
+
 ## NAME
 
 [docker-shell](docker-shell.1.adoc) - run a user shell in a new container with
