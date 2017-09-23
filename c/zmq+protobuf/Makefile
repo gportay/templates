@@ -30,7 +30,7 @@ all: zpc-subscriber zpc-publisher
 
 zpc-subscriber zpc-publisher: zpc-message.pb-c.o
 
-%.pb-c.c: %.proto
+%.pb-c.h %.pb-c.c: %.proto
 	protoc-c --c_out=. $<
 
 .PHONY: test-publisher
