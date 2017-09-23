@@ -1,6 +1,22 @@
 syntax = "proto3";
 
+enum Corpus {
+	UNIVERSAL = 0;
+	WEB = 1;
+	IMAGES = 2;
+	LOCAL = 3;
+	NEWS = 4;
+	PRODUCTS = 5;
+	VIDEO = 6;
+}
+
+message ID {
+	bytes unique = 1;
+}
+
 message Message {
 	int32 type = 1;
 	string data = 2;
+	repeated int32 array = 3;
+	ID uuid = 4;
 }
