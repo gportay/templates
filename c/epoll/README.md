@@ -24,7 +24,7 @@ basic skeleton using **epoll(2)** API as polling loop.
 **-h or --help**
 	Display this message.
 
-**-v or --version**
+**-V or --version**
 	Display the version.
 
 ## EXIT STATUS
