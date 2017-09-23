@@ -314,6 +314,10 @@ int main (int argc, char *argv[]) {
 #include <errno.h>
 #include <getopt.h>
 
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 #include <netinet/in.h>
 #include <arpa/nameser.h>
 #include <resolv.h>
@@ -617,13 +621,14 @@ int parse_arguments(struct options_t *opts, int argc, char * const argv[])
 
 int main(int argc, char * const argv[])
 {
-	int i, len, ret = EXIT_SUCCESS;
 	struct options_t options = {
 		.class   = T_ANY,
 		.type    = C_IN,
 	};
 	res_state state = &options.state;
-	unsigned char answer[BUFSIZ];
+	unsigned char *p, answer[BUFSIZ];
+	int i, len, ret = EXIT_SUCCESS;
+	struct in_addr inaddr;
 
 	int argi = parse_arguments(&options, argc, argv);
 	if (argi < 0) {
@@ -664,6 +669,22 @@ int main(int argc, char * const argv[])
 		}
 
 		hexdebug(0, answer, len);
+		p = answer;
+		inaddr.s_addr = ns_get32(p);
+		printf("%s\n", inet_ntoa(inaddr));
+
+		p++;
+		inaddr.s_addr = ns_get32(p);
+		printf("%s\n", inet_ntoa(inaddr));
+
+		p++;
+		inaddr.s_addr = ns_get32(p);
+		printf("%s\n", inet_ntoa(inaddr));
+
+		p = answer + 0x32;
+		inaddr.s_addr = ns_get32(p);
+		printf("%s\n", inet_ntoa(inaddr));
+
 		close:
 		res_nclose(state);
 	}
