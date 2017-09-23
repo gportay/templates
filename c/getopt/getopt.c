@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Gaël PORTAY <gael.portay@gmail.com>
+ * Copyright (c) 2015-2017 Gaël PORTAY <gael.portay@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,10 +39,9 @@ struct options_t {
 	long number;
 };
 
-inline const char *applet(const char *arg0)
+static inline const char *applet(const char *arg0)
 {
 	char *s = strrchr(arg0, '/');
-
 	if (!s)
 		return arg0;
 
@@ -56,7 +55,7 @@ void usage(FILE * f, char * const arg0)
 		   " -s or --string STRING Set string.\n"
 		   " -n or --number NUMBER Set number.\n"
 		   " -h or --help          Display this message.\n"
-		   " -v or --version       Display the version.\n"
+		   " -V or --version       Display the version.\n"
 		   "", applet(arg0));
 }
 
@@ -65,14 +64,14 @@ int parse_arguments(struct options_t *opts, int argc, char * const argv[])
 	static const struct option long_options[] = {
 		{ "string",  required_argument, NULL, 's' },
 		{ "number",  required_argument, NULL, 'n' },
-		{ "version", no_argument,       NULL, 'v' },
+		{ "version", no_argument,       NULL, 'V' },
 		{ "help",    no_argument,       NULL, 'h' },
 		{ NULL,      no_argument,       NULL, 0   }
 	};
 
 	for (;;) {
 		int option_index;
-		int c = getopt_long(argc, argv, "s:n:vh", long_options, &option_index);
+		int c = getopt_long(argc, argv, "s:n:Vh", long_options, &option_index);
 		if (c == -1) {
 			break;
 		}
@@ -93,7 +92,7 @@ int parse_arguments(struct options_t *opts, int argc, char * const argv[])
 			break;
 		}
 
-		case 'v':
+		case 'V':
 			printf("%s\n", VERSION);
 			exit(EXIT_SUCCESS);
 			break;
@@ -123,14 +122,13 @@ int main(int argc, char * const argv[])
 
 	int argi = parse_arguments(&options, argc, argv);
 	if (argi < 0) {
+		fprintf(stderr, "Error: Invalid argument!\n");
 		exit(EXIT_FAILURE);
-	}
-	else if (argc - argi < 1) {
+	} else if (argc - argi < 1) {
 		usage(stdout, argv[0]);
 		fprintf(stderr, "Error: Too few arguments!\n");
 		exit(EXIT_FAILURE);
-	}
-	else if (argc - argi > 1) {
+	} else if (argc - argi > 1) {
 		usage(stdout, argv[0]);
 		fprintf(stderr, "Error: Too many arguments!\n");
 		exit(EXIT_FAILURE);

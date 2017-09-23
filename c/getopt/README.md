@@ -24,7 +24,7 @@ basic skeleton using **getopt\_long(3)** to parse arguments.
 **-h or --help**
 	Display this message.
 
-**-v or --version**
+**-V or --version**
 	Display the version.
 
 ## EXIT STATUS
