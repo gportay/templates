@@ -47,6 +47,8 @@ and subscriber applets
 
 [mime-types](c/regex/README.md) - example of how to use regex API
 
+[signal](c/signal/README.md) - example of how to use sigwaitinfo function
+
 [sigwaitinfo](c/sigwaitinfo/README.md) - example of how to use sigwaitinfo
 function
 
