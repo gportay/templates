@@ -21,6 +21,8 @@ ascii
 
 [line](c/parser/line/README.md) - simple C line parser without context
 
+[pexec](c/pipe/README.md) - execute file in an interprocess channel
+
 [publisher,epoll-publisher,subscriber](c/zmq/README.md) - simple ZMQ publisher
 and subscriber applets
 
