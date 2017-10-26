@@ -30,6 +30,8 @@ and subscriber applets
 
 [verrevcmp](pkg/version-lt/README.md) - comparison of version numbers
 
+[zombize](c/zombize/README.md) - create zombie process
+
 [zpc-publisher,zpc-subscriber](c/zmq+protobuf/README.md) - simple ZMQ publisher
 and subscriber applets using protobuf messages
 
