@@ -1,7 +1,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2017 Gaël PORTAY <gael.portay@savoirfairelinux.com>
+# Copyright (c) 2015-2017 Gaël PORTAY <gael.portay@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,15 +22,25 @@
 # THE SOFTWARE.
 #
 
-.NOTPARALLEL:
+CMDLINE	?=
 
 .PHONY: all
 all:
 
-.PHONY: download
-download:
+include kernel.mk
 
-include runqemu.mk
+.PHONY: runqemu
+runqemu:
 
-all: kernel
+runqemu: KERNELFLAG=-kernel bzImage
+runqemu: bzImage
+
+ifneq (,$(CMDLINE))
+runqemu: APPENDFLAG=-append "$(CMDLINE)"
+endif
+
+runqemu:
+	-ttysave="$$(stty -g)"; \
+	qemu-system-$(shell uname -m) $(KERNELFLAG) $(APPENDFLAG) -serial stdio; \
+	stty $$ttysave
 
