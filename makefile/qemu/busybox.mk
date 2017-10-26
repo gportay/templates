@@ -22,6 +22,9 @@
 # THE SOFTWARE.
 #
 
+# Enable ELF binary format support
+LINUX_CONFIGS	+= CONFIG_BINFMT_ELF=y
+
 .PHONY: all
 all:
 
