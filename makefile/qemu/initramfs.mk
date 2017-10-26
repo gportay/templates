@@ -1,7 +1,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2017 Gaël PORTAY <gael.portay@savoirfairelinux.com>
+# Copyright (c) 2015-2017 Gaël PORTAY <gael.portay@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,15 +22,48 @@
 # THE SOFTWARE.
 #
 
-.NOTPARALLEL:
-
 .PHONY: all
 all:
 
-.PHONY: download
-download:
+.PHONY: clean
+clean: initramfs_clean
 
-include runqemu.mk
+.PHONY: mrproper
+mrproper: initramfs_mrproper
 
-all: kernel initramfs.cpio
+include busybox.mk
+
+initramfs.cpio: ramfs
+
+ramfs ramfs/dev:
+	mkdir -p $@
+
+ramfs/init ramfs/linuxrc:
+	ln -sf /bin/sh $@
+
+ramfs/dev/initrd: | ramfs/dev
+	fakeroot -i ramfs.env -s ramfs.env -- mknod -m 400 $@ b 1 250
+
+ramfs/dev/console: | ramfs/dev
+	fakeroot -i ramfs.env -s ramfs.env -- mknod -m 622 $@ c 5 1
+
+initramfs.cpio.gz:
+
+initramfs.cpio: ramfs/bin/busybox ramfs/dev/console
+
+%.cpio:
+	cd $< && find . | \
+	fakeroot -i $(CURDIR)/ramfs.env -s $(CURDIR)/ramfs.env -- \
+	cpio -H newc -o -R root:root >$(CURDIR)/$@
+
+%.gz: %
+	gzip -9 $*
+
+.PHONY: initramfs_clean
+initramfs_clean:
+	rm -Rf ramfs/ ramfs.env
+	rm -f initramfs.cpio
+
+.PHONY: initramfs_mrproper
+initramfs_mrproper:
 

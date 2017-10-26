@@ -32,6 +32,7 @@ LINUX_CONFIGS	+= CONFIG_SERIAL_8250_CONSOLE=y
 .PHONY: all
 all:
 
+include initramfs.mk
 include kernel.mk
 
 .PHONY: runqemu
@@ -40,12 +41,15 @@ runqemu:
 runqemu: KERNELFLAG=-kernel bzImage
 runqemu: bzImage
 
+runqemu: INITRDFLAG=-initrd initramfs.cpio
+runqemu: initramfs.cpio
+
 ifneq (,$(CMDLINE))
 runqemu: APPENDFLAG=-append "$(CMDLINE)"
 endif
 
 runqemu:
 	-ttysave="$$(stty -g)"; \
-	qemu-system-$(shell uname -m) $(KERNELFLAG) $(APPENDFLAG) -serial stdio; \
+	qemu-system-$(shell uname -m) $(KERNELFLAG) $(INITRDFLAG) $(APPENDFLAG) -serial stdio; \
 	stty $$ttysave
 
