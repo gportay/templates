@@ -22,6 +22,10 @@
 # THE SOFTWARE.
 #
 
+# Enable initramfs/initrd support
+LINUX_CONFIGS	+= CONFIG_BLK_DEV_INITRD=y
+LINUX_CONFIGS	+= BLK_DEV_RAM=y
+
 .PHONY: all
 all:
 
