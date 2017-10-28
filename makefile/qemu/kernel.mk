@@ -27,6 +27,10 @@ ifeq (x86_64,$(shell uname -m))
 LINUX_CONFIGS	+= CONFIG_64BIT=y
 endif
 
+# Enable printk support for traces
+LINUX_CONFIGS	+= CONFIG_PRINTK=y
+LINUX_CONFIGS	+= CONFIG_EARLY_PRINTK=y
+
 .PHONY: all
 all:
 
