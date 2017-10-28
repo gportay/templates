@@ -26,6 +26,10 @@
 LINUX_CONFIGS	+= CONFIG_BLK_DEV_INITRD=y
 LINUX_CONFIGS	+= CONFIG_BLK_DEV_RAM=y
 
+# Automount devtmpfs at /dev, after the kernel mounted the rootfs
+LINUX_CONFIGS	+= CONFIG_DEVTMPFS=y
+LINUX_CONFIGS	+= CONFIG_DEVTMPFS_MOUNT=y
+
 # /proc file system support
 LINUX_CONFIGS	+= CONFIG_PROC_FS=y
 
