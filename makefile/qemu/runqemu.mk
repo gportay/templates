@@ -24,6 +24,11 @@
 
 CMDLINE	?=
 
+# Enable console on 8250/16550 and compatible serial port
+LINUX_CONFIGS	+= CONFIG_TTY=y
+LINUX_CONFIGS	+= CONFIG_SERIAL_8250=y
+LINUX_CONFIGS	+= CONFIG_SERIAL_8250_CONSOLE=y
+
 .PHONY: all
 all:
 
