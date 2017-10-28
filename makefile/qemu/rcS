@@ -1,0 +1,10 @@
+#!/bin/sh
+#
+# Copyright 2017 Gaël PORTAY <gael.portay@savoirfairelinux.com>
+#
+# Licensed under the MIT license.
+#
+
+/bin/mknod -m 400 /dev/tty2 c 4 2
+/bin/mknod -m 400 /dev/tty3 c 4 3
+/bin/mknod -m 400 /dev/tty4 c 4 4
