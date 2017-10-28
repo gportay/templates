@@ -26,6 +26,9 @@
 LINUX_CONFIGS	+= CONFIG_BLK_DEV_INITRD=y
 LINUX_CONFIGS	+= CONFIG_BLK_DEV_RAM=y
 
+# /proc file system support
+LINUX_CONFIGS	+= CONFIG_PROC_FS=y
+
 .PHONY: all
 all:
 
@@ -39,7 +42,7 @@ include busybox.mk
 
 initramfs.cpio: ramfs
 
-ramfs ramfs/dev:
+ramfs ramfs/dev ramfs/proc:
 	mkdir -p $@
 
 ramfs/init ramfs/linuxrc:
@@ -53,6 +56,7 @@ ramfs/dev/console: | ramfs/dev
 
 initramfs.cpio.gz:
 
+initramfs.cpio: | ramfs/proc
 initramfs.cpio: ramfs/bin/busybox ramfs/dev/console
 
 include init.mk
