@@ -30,6 +30,15 @@ all:
 .PHONY: download
 download:
 
+# Maintain a devtmpfs filesystem to mount at /dev
+LINUX_CONFIGS	+= CONFIG_DEVTMPFS=y
+
+# Automount devtmpfs at /dev, after the kernel mounted the rootfs
+LINUX_CONFIGS	+= CONFIG_DEVTMPFS_MOUNT=y
+
+# Support for uevent helper
+LINUX_CONFIGS	+= CONFIG_UEVENT_HELPER=y
+
 include runqemu.mk
 
 all: kernel

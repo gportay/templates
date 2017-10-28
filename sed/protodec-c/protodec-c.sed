@@ -13,8 +13,8 @@
 	/^} .\+;$/s, .\+;,,
 }
 
-/^struct \+_/,/^};$/ {
-	s,struct \+_\(.*\),message \1 {,
+/^struct \+_/,/} .\+;/ {
+	s,struct \+_\(.*\),message \1 {,;
 	/^{/d
 	/^};$/s,;$,,
 	/ProtobufCMessage \+base/d
@@ -24,8 +24,33 @@
 	/char \+\*/s,char \+\*,string ,
 	/protobuf_c_boolean \+/s,protobuf_c_boolean,bool,
 	/ProtobufCBinaryData \+/s,ProtobufCBinaryData,bytes,
+	/__.* \+\*/s,\*,,
 	/.* \*.*;/s,\*,,
 }
 
 /^message \+/,/}/p
 /^enum \+/,/}/p
+
+
+/^function toto {/,/^}$/ s,^\t,    ,
+
+
+function toto {
+	toto
+}
+
+    toto
+	
++++
+asdfas
+asdfas
+dfasdfa
+sdfasdf
+
+---
+asdf
+asdfasdfa
+sdfasdfasdf
+
+
+

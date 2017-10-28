@@ -30,6 +30,12 @@ LINUX_CONFIGS	+= CONFIG_BLK_DEV_RAM=y
 LINUX_CONFIGS	+= CONFIG_DEVTMPFS=y
 LINUX_CONFIGS	+= CONFIG_DEVTMPFS_MOUNT=y
 
+# Provide block layer support for the kernel.
+LINUX_CONFIGS	+= CONFIG_BLOCK=y
+
+# Null test block driver
+LINUX_CONFIGS	+= CONFIG_BLK_DEV_NULL_BLK=y
+
 # /proc file system support
 LINUX_CONFIGS	+= CONFIG_PROC_FS=y
 
