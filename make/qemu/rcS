@@ -17,6 +17,7 @@ rcS: Warning: kernel has not been compiled with devtmpfs filesystem!
 EOF
 	/bin/mount -t tmpfs tmpfs /dev
 	/bin/mknod -m 666 /dev/null c 1 3
+	/bin/mknod -m 400 /dev/tty1 c 4 1
 	/bin/mknod -m 400 /dev/tty2 c 4 2
 	/bin/mknod -m 400 /dev/tty3 c 4 3
 	/bin/mknod -m 400 /dev/tty4 c 4 4
