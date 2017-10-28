@@ -58,6 +58,9 @@ ramfs ramfs/dev ramfs/proc ramfs/sys ramfs/etc ramfs/root:
 ramfs/init ramfs/linuxrc:
 	ln -sf /bin/sh $@
 
+ramfs/tmp ramfs/var ramfs/run:
+	mkdir -p $@
+
 ramfs/dev/initrd: | ramfs/dev
 	fakeroot -i ramfs.env -s ramfs.env -- mknod -m 400 $@ b 1 250
 
@@ -74,6 +77,7 @@ initramfs.cpio.gz:
 
 initramfs.cpio: | ramfs/proc ramfs/sys
 initramfs.cpio: ramfs/bin/busybox ramfs/dev/console
+initramfs.cpio: | ramfs/tmp ramfs/var ramfs/run
 
 include init.mk
 
