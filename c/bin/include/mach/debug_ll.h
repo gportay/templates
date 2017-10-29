@@ -18,10 +18,10 @@
 /** @file
  *  This File contains declaration for early output support
  */
-#ifndef __MIPS_DEBUG_LL_H__
-#define __MIPS_DEBUG_LL_H__
+#ifndef __MT7628_DEBUG_LL_H__
+#define __MT7628_DEBUG_LL_H__
 
 #include <board/debug_ll.h>
 #include <asm/debug_ll_ns16550.h>
 
-#endif /* __MIPS_DEBUG_LL_H__ */
+#endif /* __MT7628_DEBUG_LL_H__ */

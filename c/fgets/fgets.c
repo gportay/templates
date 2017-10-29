@@ -57,14 +57,20 @@ int main()
 		return EXIT_FAILURE;
 	}
 
+for (;;) {
+	errno = EAGAIN;
 	char *s = fgets(buf, sizeof(buf), stdin);
+	printf("s: %s\n", s);
+	printf("feof(stdin): %i\n", feof(stdin));
 	if (!s) {
 		if (errno) {
 			perror("fgets");
 			return EXIT_FAILURE;
 		}
 		buf[0] = 0;
+		break;
 	}
+}
 
 	printf("%s\n", buf);
 

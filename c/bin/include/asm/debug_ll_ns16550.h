@@ -69,7 +69,7 @@ static inline void PUTC_LL(char ch)
 /*
  * Macros for use in assembly language code
  */
-
+#error Oops
 .macro	debug_ll_ns16550_init
 #ifdef CONFIG_DEBUG_LL
 	la	t0, DEBUG_LL_UART_ADDR
