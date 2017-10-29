@@ -24,7 +24,7 @@
 
 # Enable initramfs/initrd support
 LINUX_CONFIGS	+= CONFIG_BLK_DEV_INITRD=y
-LINUX_CONFIGS	+= CONFIG_BLK_DEV_RAM=y
+LINUX_CONFIGS	+= BLK_DEV_RAM=y
 
 # Automount devtmpfs at /dev, after the kernel mounted the rootfs
 LINUX_CONFIGS	+= CONFIG_DEVTMPFS=y
