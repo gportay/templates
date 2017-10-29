@@ -8,6 +8,8 @@ Mostly *C/C++*, *Shell/Bash* and *Makefile*.
 [addressbook](c++/protobuf/README.md) - example of how to use protobuf API and
 create a Makefile
 
+[ueventcat](c/netlink/README.md) - concatenate UEVENT(s) to standard output
+
 [daemonize](c/daemonize/README.md) - create daemon process
 
 [epoll](c/epoll/README.md) - example of how to use epoll API
