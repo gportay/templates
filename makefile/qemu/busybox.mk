@@ -80,5 +80,5 @@ busybox_clean:
 
 .PHONY: busybox_mrproper
 busybox_mrproper:
-	-$(MAKE) -C busybox disclean
+	-$(MAKE) -C busybox distclean
 
