@@ -30,6 +30,9 @@ and subscriber applets
 
 [mime-types](c/regex/README.md) - example of how to use regex API
 
+[uevent](c/parser/uevent/README.md) - simple C kobject/uevent parser without
+context
+
 [verrevcmp](pkg/version-lt/README.md) - comparison of version numbers
 
 [zombize](c/zombize/README.md) - create zombie process
