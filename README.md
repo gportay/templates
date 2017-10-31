@@ -8,6 +8,8 @@ Mostly *C/C++*, *Shell/Bash* and *Makefile*.
 [addressbook](c++/protobuf/README.md) - example of how to use protobuf API and
 create a Makefile
 
+[daemonize](c/daemonize/README.md) - create daemon process
+
 [epoll](c/epoll/README.md) - example of how to use epoll API
 
 [getopt](c/getopt/README.md) - example of how to use getopt\_long function
@@ -19,12 +21,16 @@ ascii
 
 [line](c/parser/line/README.md) - simple C line parser without context
 
+[pexec](c/pipe/README.md) - execute file in an interprocess channel
+
 [publisher,epoll-publisher,subscriber](c/zmq/README.md) - simple ZMQ publisher
 and subscriber applets
 
 [mime-types](c/regex/README.md) - example of how to use regex API
 
 [verrevcmp](pkg/version-lt/README.md) - comparison of version numbers
+
+[zombize](c/zombize/README.md) - create zombie process
 
 [zpc-publisher,zpc-subscriber](c/zmq+protobuf/README.md) - simple ZMQ publisher
 and subscriber applets using protobuf messages
