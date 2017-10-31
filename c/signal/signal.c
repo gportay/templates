@@ -42,10 +42,14 @@ const char VERSION[] = __DATE__ " " __TIME__;
 #include <asm/types.h>
 #include <linux/netlink.h>
 
+#include "hexdump.h"
+
 static int VERBOSE = 0;
 static int DEBUG = 0;
 #define verbose(fmt, ...) if (VERBOSE) fprintf(stderr, fmt, ##__VA_ARGS__)
 #define debug(fmt, ...) if (DEBUG) fprintf(stderr, fmt, ##__VA_ARGS__)
+#define hexdebug(addr, buf, size) if (DEBUG) fhexdump(stderr, addr, buf, size)
+
 #define __memcmp(s1, s2) memcmp(s1, s2, sizeof(s2) - 1)
 #define __close(fd) do { \
 	int __error = errno; \
@@ -290,6 +294,7 @@ ssize_t netlink_recv(int fd, struct sockaddr_nl *addr)
 			break;
 		}
 
+		hexdebug(0, buf, l);
 		s = buf;
 		buf[l] = 0;
 		if (!__memcmp(buf, "libudev")) {
