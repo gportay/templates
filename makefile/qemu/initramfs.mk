@@ -29,6 +29,9 @@ LINUX_CONFIGS	+= CONFIG_BLK_DEV_RAM=y
 # /proc file system support
 LINUX_CONFIGS	+= CONFIG_PROC_FS=y
 
+# Posix Clocks & timers
+LINUX_CONFIGS	+= CONFIG_POSIX_TIMERS=y
+
 .PHONY: all
 all:
 
