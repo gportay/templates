@@ -6,6 +6,7 @@
 #
 
 /bin/mount -t proc  proc  /proc
+/bin/mount -t sysfs sysfs /sys
 
 if ! grep -q '^devtmpfs ' /proc/mounts && \
    ! mount -t devtmpfs devtmps /dev; then

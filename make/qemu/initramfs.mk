@@ -33,6 +33,9 @@ LINUX_CONFIGS	+= CONFIG_DEVTMPFS_MOUNT=y
 # /proc file system support
 LINUX_CONFIGS	+= CONFIG_PROC_FS=y
 
+# sysfs file system support
+LINUX_CONFIGS	+= CONFIG_SYSFS=y
+
 # Posix Clocks & timers
 LINUX_CONFIGS	+= CONFIG_POSIX_TIMERS=y
 
@@ -49,7 +52,7 @@ include busybox.mk
 
 initramfs.cpio: ramfs
 
-ramfs ramfs/dev ramfs/proc ramfs/etc ramfs/root:
+ramfs ramfs/dev ramfs/proc ramfs/sys ramfs/etc ramfs/root:
 	mkdir -p $@
 
 ramfs/init ramfs/linuxrc:
@@ -69,7 +72,7 @@ ramfs/etc/group: | ramfs/etc
 
 initramfs.cpio.gz:
 
-initramfs.cpio: | ramfs/proc
+initramfs.cpio: | ramfs/proc ramfs/sys
 initramfs.cpio: ramfs/bin/busybox ramfs/dev/console
 
 include init.mk
