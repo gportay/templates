@@ -25,8 +25,11 @@
 .PHONY: all
 all:
 
-initramfs.cpio: ramfs/etc/init.d/rcS
+initramfs.cpio: ramfs/etc/init.d/rcS ramfs/etc/inittab
 
 ramfs/etc/init.d/rcS: rcS
 	install -D -m 755 $< $@
+
+ramfs/etc/inittab: inittab | ramfs/etc
+	install -D -m 644 $< $@
 

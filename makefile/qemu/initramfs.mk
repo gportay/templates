@@ -26,6 +26,12 @@
 LINUX_CONFIGS	+= CONFIG_BLK_DEV_INITRD=y
 LINUX_CONFIGS	+= CONFIG_BLK_DEV_RAM=y
 
+# /proc file system support
+LINUX_CONFIGS	+= CONFIG_PROC_FS=y
+
+# Posix Clocks & timers
+LINUX_CONFIGS	+= CONFIG_POSIX_TIMERS=y
+
 .PHONY: all
 all:
 
@@ -39,7 +45,7 @@ include busybox.mk
 
 initramfs.cpio: ramfs
 
-ramfs ramfs/dev:
+ramfs ramfs/dev ramfs/proc ramfs/etc ramfs/root:
 	mkdir -p $@
 
 ramfs/init ramfs/linuxrc:
@@ -51,11 +57,20 @@ ramfs/dev/initrd: | ramfs/dev
 ramfs/dev/console: | ramfs/dev
 	fakeroot -i ramfs.env -s ramfs.env -- mknod -m 622 $@ c 5 1
 
+ramfs/etc/passwd: | ramfs/etc
+	echo "root::0:0:root:/root:/bin/sh" >$@
+
+ramfs/etc/group: | ramfs/etc
+	echo "root:x:0:root" >$@
+
 initramfs.cpio.gz:
 
+initramfs.cpio: | ramfs/proc
 initramfs.cpio: ramfs/bin/busybox ramfs/dev/console
 
 include init.mk
+
+initramfs.cpio: ramfs/etc/passwd ramfs/etc/group | ramfs/root
 
 %.cpio:
 	cd $< && find . | \
