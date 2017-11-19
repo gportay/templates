@@ -1,7 +1,19 @@
-# templates
+# Template of codes
 
-Here remains some of templates and examples of source files I developped.
-Mostly *C/C++*, *Shell/Bash* and *Makefile*.
+Here remain many examples of source files I have developed for years.
+
+Those examples of code are mostly written in *C/C++*, *Shell/Bash*, and
+*make/Makefile*. Those languages are the foundations of *low-level* and *system*
+development.
+
+Some of these examples, as [zpc-publisher,zpc-subscriber] or [docker-shell],
+have served as *proof of concept*. The primary goal was to get familiar with new
+libraries; sometimes to mix libraries together as [ProtoBuf] and [ZeroMQ] with
+[zpc-publisher,zpc-subscriber]. Latter, some have become *standalone* projects:
+[docker-shell] gave birth to [dosh].
+
+Others examples, such as [getopt] or [hexdump], are good templates to get
+started with a brand new project or to reuse code.
 
 ## C/C++
 
@@ -88,3 +100,11 @@ Copyright (c) 2015-2017 Gaël PORTAY
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the MIT License.
+
+[docker-shell]: docker/shell/README.md
+[getopt]: c/getopt/README.md
+[hexdump]: c/hexdump/README.md
+[zpc-publisher,zpc-subscriber]: c/zmq+protobuf/README.md
+[ZeroMQ]: http://zeromq.org/
+[ProtoBuf]: https://developers.google.com/protocol-buffers/
+[dosh]: https://github.com/gazoo74/dosh/
