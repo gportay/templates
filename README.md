@@ -1,4 +1,4 @@
-# Templates of cod
+# Template of codes
 
 Here remain many examples of source files I have developped for years.
 
@@ -8,9 +8,9 @@ development.
 
 Some of these examples, as [zpc-publisher,zpc-subscriber] or [docker-shell],
 have served as *proof of concept*. The primary goal was to get familiar with new
-libraries; sometimes to mix libraries together as ProtoBuf[2] and ZeroMQ[3] with
+libraries; sometimes to mix libraries together as [ProtoBuf] and [ZeroMQ] with
 [zpc-publisher,zpc-subscriber]. Latter, some have became *standalone* projects:
-[docker-shell] gave birth to dosh[1].
+[docker-shell] gave birth to [dosh].
 
 Others examples, such as [getopt] or [hexdump], are good templates to get
 started with a brand new project or to reuse code.
@@ -103,6 +103,8 @@ the terms of the MIT License.
 
 [docker-shell]: docker/shell/README.md
 [getopt]: c/getopt/README.md
-[1]: https://github.com/gazoo74/dosh/
-[2]: http://zeromq.org/
-[3]: https://developers.google.com/protocol-buffers/
+[hexdump]: c/hexdump/README.md
+[zpc-publisher,zpc-subscriber]: c/zmq+protobuf/README.md
+[ZeroMQ]: http://zeromq.org/
+[ProtoBuf]: https://developers.google.com/protocol-buffers/
+[dosh]: https://github.com/gazoo74/dosh/
