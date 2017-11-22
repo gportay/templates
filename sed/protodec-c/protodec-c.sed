@@ -13,7 +13,8 @@
 	/^} .\+;$/s, .\+;,,
 }
 
-/^struct \+_/s,struct \+_\(.*\),message \1 {,; {
+/^struct \+_/,/^};$/ {
+	s,struct \+_\(.*\),message \1 {,
 	/^{/d
 	/^};$/s,;$,,
 	/ProtobufCMessage \+base/d
