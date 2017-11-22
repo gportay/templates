@@ -1,5 +1,8 @@
 # protodec-c(1)
 
+_Important_: [protodec-c.sed](protodec-c.sed) was a proof of concept. Please see
+[decproto-c](https://github.com/gazoo74/deprotoc-c) for a full featured utility.
+
 ## NAME
 
 [protodec-c](protodec-c.1.adoc) - decompile protobuf C header
