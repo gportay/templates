@@ -59,20 +59,29 @@ do
 done
 
 # Extract path and query
-path="${request[URI]}"
-query="${path#*\?}"
-path="${path%\?*}"
+uri="${request[URI]}"
+query="${uri#*\?}"
+path="${uri%\?*}"
+uri="$path"
 if [[ "$query" == "$path" ]]
 then
 	query=""
 fi
-if [[ "$path" =~ ^/.* ]]
+if [[ "$path" =~  ^/cgi-bin/* ]]
 then
-	path=".$path"
+	cgi=true
+else
+	cgi=false
 fi
+path="${DOCUMENT_ROOT:-$PWD}$path"
 if [ -d "$path" ]
 then
-	path+="index.txt"
+	if $cgi
+	then
+		path+="index.cgi"
+	else
+		path+="index.txt"
+	fi
 fi
 
 # Export headers
@@ -102,6 +111,27 @@ then
 	printf "HTTP/1.1 404 Not Found\r\n"
 	printf "\r\n"
 	exit 1
+fi
+
+# CGI script
+if $cgi
+then
+	GATEWAY_INTERFACE="CGI/1.1"
+	export GATEWAY_INTERFACE
+
+	QUERY_STRING="$query"
+	export QUERY_STRING
+
+	REQUEST_METHOD="${request[METHOD]}"
+	REQUEST_URI="${request[URI]}"
+	REQUEST_VERSION="${request[VERSION]}"
+	export REQUEST_METHOD REQUEST_URI REQUEST_VERSION
+
+	SCRIPT_NAME="$uri"
+	SCRIPT_FILENAME="$path"
+	export SCRIPT_FILENAME SCRIPT_NAME
+
+	exec "$path"
 fi
 
 # 200 OK

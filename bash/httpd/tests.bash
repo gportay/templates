@@ -53,10 +53,20 @@ trap result 0
 HOST="localhost"
 PORT="1234"
 BASEURI="http://$HOST:$PORT"
+SERVER="httpd.bash"
 CURLOPTS=( $CURLOPTS )
 
+DOCUMENT_ROOT="$PWD"
+export DOCUMENT_ROOT
+
+SERVER_ADMIN="$USER@$HOST"
+SERVER_NAME="$HOST"
+SERVER_PORT="$PORT"
+SERVER_SOFTWARE="$SERVER"
+export SERVER_ADMIN SERVER_NAME SERVER_PORT SERVER_SOFTWARE
+
 send_request() {
-	nc -l "$HOST" "$PORT" --sh-exec "bash httpd.bash" &
+	nc -l "$HOST" "$PORT" --sh-exec "bash $SERVER" &
 	trap "kill $!; wait $!; result" 0 INT
 
 	run "Test $uri"
@@ -78,6 +88,21 @@ uri+="?foo=bar"
 send_request "$uri"
 
 uri="$BASEURI/index.txt"
+send_request "$uri"
+
+uri="$BASEURI"
+uri+="?foo=bar"
+send_request "$uri"
+
+uri="$BASEURI"
+uri+="/export.sh"
+send_request "$uri"
+
+uri+="?foo=bar"
+send_request "$uri"
+
+uri="$BASEURI"
+uri+="/cgi-bin/export.sh"
 send_request "$uri"
 
 uri+="?foo=bar"
