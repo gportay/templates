@@ -34,8 +34,26 @@ httpd: export DEBUG=1
 httpd:
 	nc -l localhost 1234 --sh-exec "bash httpd.bash" $(NCOPTS)
 
+.PHONY: ssl-send-request
+ssl-send-request: export DEBUG=1
+ssl-send-request: export CURLOPTS+=--insecure
+ssl-send-request:
+	curl https://localhost:1234 $(CURLOPTS)
+
+.PHONY: ssl-httpd
+ssl-httpd: export DEBUG=1
+ssl-httpd: override NCOPTS+=--ssl
+ssl-httpd:
+	nc -l localhost 1234 --sh-exec "bash httpd.bash" $(NCOPTS)
+
 .PHONY: tests
 tests:
+	bash tests.bash
+
+.PHONY: ssl-tests
+ssl-tests: export DEBUG=1
+ssl-tests: export CURLOPTS+=--verbose --dump-header /dev/stderr
+ssl-tests:
 	bash tests.bash
 
 .PHONY: debug-tests
