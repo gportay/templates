@@ -46,17 +46,27 @@ ssl-httpd: override NCOPTS+=--ssl
 ssl-httpd:
 	nc -l localhost 1234 --sh-exec "bash httpd.bash" $(NCOPTS)
 
+.PHONY: openssl-send-request
+openssl-send-request: export DEBUG=1
+openssl-send-request: export CURLOPTS+=--insecure
+openssl-send-request:
+	curl https://localhost:1234 $(CURLOPTS)
+
 .PHONY: openssl-httpd
 openssl-server: server.pem
 openssl-server: override OPENSSLOPTS+=-quiet
+#openssl-server: export DEBUG=1
+#openssl-server: export HTTPS=on
 openssl-server:
 	openssl s_server -accept 1234 $(OPENSSLOPTS)
+# | bash -c "export; bash httpd.bash"
 
 .PHONY: openssl-client
 openssl-client: server.pem
 openssl-client: override OPENSSLOPTS+=-quiet
 openssl-client:
 	openssl s_client -connect localhost:1234 $(OPENSSLOPTS)
+# | bash -c "export; bash httpd.bash"
 
 %.pem: OPENSSLOPTS=-subj "/C=CA/ST=Quebec/L=Montreal/O=DemoCA Ltd/OU=IT/CN=www.example.org"
 %.pem:

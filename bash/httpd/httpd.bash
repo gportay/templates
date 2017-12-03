@@ -134,6 +134,55 @@ fi
 # CGI script
 if $cgi
 then
+# declare -x NCAT_LOCAL_ADDR="127.0.0.1"
+# declare -x NCAT_LOCAL_PORT="1234"
+# declare -x NCAT_PROTO="TCP"
+# declare -x NCAT_REMOTE_ADDR="127.0.0.1"
+# declare -x NCAT_REMOTE_PORT="47760"
+	DOCUMENT_ROOT="$PWD"
+# From request headers
+#	HTTP_COOKIE="$HEADER_COOKIE"
+#	HTTP_HOST=
+#	HTTP_REFERER=
+#	HTTP_USER_AGENT=
+	if [[ $NCAT_PROTO == TCP ]]; then
+		HTTPS="on"
+	fi
+	QUERY_STRING="$query"
+	REMOTE_ADDR="${NCAT_REMOTE_ADDR}"
+#	REMOTE_HOST=""
+	REMOTE_PORT="${NCAT_REMOTE_PORT}"
+#	REMOTE_USER=""
+	REQUEST_METHOD="${request[METHOD]}"
+	REQUEST_URI="${request[URI]}"
+	SCRIPT_FILENAME="${path##*/}"
+	SCRIPT_NAME="${path}"
+	SERVER_ADMIN=
+	SERVER_NAME="www.localhost.org"
+	SERVER_PORT="${NCAT_LOCAL_PORT}"
+	SERVER_SOFTWARE="${0##*/}"
+
+	export DOCUMENT_ROOT	# The root directory of your server
+	export HTTP_COOKIE	# The visitor's cookie, if one is set
+	export HTTP_HOST	# The hostname of the page being attempted
+	export HTTP_REFERER	# The URL of the page that called your program
+	export HTTP_USER_AGENT	# The browser type of the visitor
+	export HTTPS		# "on" if the program is being called through a secure server
+	export PATH		# The system path your server is running under
+	export QUERY_STRING	# The query string (see GET, below)
+	export REMOTE_ADDR	# The IP address of the visitor
+	export REMOTE_HOST	# The hostname of the visitor (if your server has reverse-name-lookups on; otherwise this is the IP address again)
+	export REMOTE_PORT	# The port the visitor is connected to on the web server
+	export REMOTE_USER	# The visitor's username (for .htaccess-protected pages)
+	export REQUEST_METHOD	# GET or POST
+	export REQUEST_URI	# The interpreted pathname of the requested document or CGI (relative to the document root)
+	export SCRIPT_FILENAME	# The full pathname of the current CGI
+	export SCRIPT_NAME	# The interpreted pathname of the current CGI (relative to the document root)
+	export SERVER_ADMIN	# The email address for your server's webmaster
+	export SERVER_NAME	# Your server's fully qualified domain name (e.g. www.cgi101.com)
+	export SERVER_PORT	# The port number your server is listening on
+	export SERVER_SOFTWARE	# The server software you're using (e.g. Apache 1.3)
+
 	GATEWAY_INTERFACE="CGI/1.1"
 	export GATEWAY_INTERFACE
 
