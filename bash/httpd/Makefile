@@ -46,6 +46,24 @@ ssl-httpd: override NCOPTS+=--ssl
 ssl-httpd:
 	nc -l localhost 1234 --sh-exec "bash httpd.bash" $(NCOPTS)
 
+.PHONY: openssl-httpd
+openssl-server: server.pem
+openssl-server: override OPENSSLOPTS+=-quiet
+openssl-server:
+	openssl s_server -accept 1234 $(OPENSSLOPTS)
+
+.PHONY: openssl-client
+openssl-client: server.pem
+openssl-client: override OPENSSLOPTS+=-quiet
+openssl-client:
+	openssl s_client -connect localhost:1234 $(OPENSSLOPTS)
+
+%.pem: OPENSSLOPTS=-subj "/C=CA/ST=Quebec/L=Montreal/O=DemoCA Ltd/OU=IT/CN=www.example.org"
+%.pem:
+	openssl req -newkey rsa:2048 \
+	            -x509 -keyout $@ -out $@ -days 365 -nodes \
+		    $(OPENSSLOPTS)
+
 .PHONY: Sec-WebSocket-Accept
 .SILENT: Sec-WebSocket-Accept
 Sec-WebSocket-Accept: KEY?=x3JJHMbDL1EzLkh9GBhXDw==
