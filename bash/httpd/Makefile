@@ -46,6 +46,13 @@ ssl-httpd: override NCOPTS+=--ssl
 ssl-httpd:
 	nc -l localhost 1234 --sh-exec "bash httpd.bash" $(NCOPTS)
 
+.PHONY: Sec-WebSocket-Accept
+.SILENT: Sec-WebSocket-Accept
+Sec-WebSocket-Accept: KEY?=x3JJHMbDL1EzLkh9GBhXDw==
+Sec-WebSocket-Accept:
+	echo -n "$(KEY)258EAFA5-E914-47DA-95CA-C5AB0DC85B11" | \
+	openssl dgst -sha1 -binary | base64
+
 .PHONY: tests
 tests:
 	bash tests.bash

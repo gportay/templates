@@ -113,6 +113,24 @@ then
 	exit 1
 fi
 
+# WebSocket handshake
+if [ "$HTTP_UPGRADE" = "websocket" ] &&
+   [ "$HTTP_CONNECTION" = "Upgrade" ] &&
+   [ -n "$HTTP_SEC_WEBSOCKET_KEY" ] &&
+   [ "$HTTP_SEC_WEBSOCKET_VERSION" -ge "13" ]
+then
+	accept="$HTTP_SEC_WEBSOCKET_KEY"
+	accept+="258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+	accept="$(echo -n "$accept" | openssl dgst -sha1 -binary | base64)"
+	printf "HTTP/1.1 101 Switching Protocols\r\n"
+	printf "Upgrade: websocket\r\n"
+	printf "Connection: Upgrade\r\n"
+	printf "Sec-WebSocket-Accept: %s\r\n" "$accept"
+	printf "Sec-WebSocket-Protocol: chat\r\n"
+	printf "\r\n"
+	exec "$path"
+fi
+
 # CGI script
 if $cgi
 then

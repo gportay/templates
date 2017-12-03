@@ -55,6 +55,7 @@ PORT="1234"
 BASEURI="http://$HOST:$PORT"
 SERVER="httpd.bash"
 CURLOPTS=( $CURLOPTS )
+CURLEXTRAOPTS=( )
 
 DOCUMENT_ROOT="$PWD"
 export DOCUMENT_ROOT
@@ -70,7 +71,7 @@ send_request() {
 	trap "kill $!; wait $!; result" 0 INT
 
 	run "Test $uri"
-	if curl "$@" "${CURLOPTS[@]}"
+	if curl "$@" "${CURLEXTRAOPTS[@]}" "${CURLOPTS[@]}"
 	then
 		ok
 	else
@@ -103,6 +104,20 @@ send_request "$uri"
 
 uri="$BASEURI"
 uri+="/cgi-bin/export.sh"
+send_request "$uri"
+
+uri+="?foo=bar"
+send_request "$uri"
+
+CURLEXTRAOPTS+=( --header "Connection: Upgrade" )
+CURLEXTRAOPTS+=( --header "Upgrade: websocket" )
+CURLEXTRAOPTS+=( --header "Host: $HOST:$PORT" )
+CURLEXTRAOPTS+=( --header "Origin: http://$HOST:$PORT" )
+CURLEXTRAOPTS+=( --header "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" )
+CURLEXTRAOPTS+=( --header "Sec-WebSocket-Version: 13" )
+
+uri="$BASEURI"
+uri+="/websocket.sh"
 send_request "$uri"
 
 uri+="?foo=bar"
