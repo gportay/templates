@@ -24,6 +24,9 @@ create a Makefile
 
 [ueventcat](c/netlink/README.md) - concatenate UEVENT(s) to standard output
 
+[blkpg-part](c/ioctl/README.md) - partition table and disk geometry handling
+utility
+
 [daemonize](c/daemonize/README.md) - create daemon process
 
 [epoll](c/epoll/README.md) - example of how to use epoll API
