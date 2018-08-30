@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2017 Savoir-Faire Linux Inc.
+ *  Copyright (C) 2017-2018 Savoir-Faire Linux Inc.
  *
  *  Authors:
  *       Gaël PORTAY <gael.portay@savoirfairelinux.com>
@@ -54,7 +54,7 @@ static int DEBUG = 0;
 #define LIBUDEV_MAGIC_OFFSET	(sizeof(LIBUDEV_STRING))
 #define LIBUDEV_PAYLOAD_OFFSET	(sizeof(LIBUDEV_STRING) + 2*sizeof(uint32_t))
 
-struct options_t {
+struct options {
 	int argc;
 	char * const *argv;
 };
@@ -81,7 +81,7 @@ void usage(FILE * f, char * const arg0)
 		   "", applet(arg0));
 }
 
-int parse_arguments(struct options_t *opts, int argc, char * const argv[])
+int parse_arguments(struct options *opts, int argc, char * const argv[])
 {
 	static const struct option long_options[] = {
 		{ "verbose", no_argument,       NULL, 'v' },
@@ -131,7 +131,7 @@ int parse_arguments(struct options_t *opts, int argc, char * const argv[])
 
 int main(int argc, char * const argv[])
 {
-	static struct options_t options;
+	static struct options options;
 	char buf[UEVENT_BUFFER_SIZE];
 	int fd, ret = EXIT_FAILURE;
 	struct sockaddr_nl addr;

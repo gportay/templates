@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2017 Gaël PORTAY <gael.portay@savoirfairelinux.com>
+ * Copyright (c) 2017-2018 Gaël PORTAY <gael.portay@savoirfairelinux.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -52,7 +52,7 @@ static int VERBOSE = 0;
 
 #define __strncmp(s1, s2) strncmp(s1, s2, sizeof(s2))
 
-struct options_t {
+struct options {
 	int timeout;
 };
 
@@ -198,7 +198,7 @@ exit:
 	return ret;
 }
 
-int parse_arguments(struct options_t *opts, int argc, char * const argv[])
+int parse_arguments(struct options *opts, int argc, char * const argv[])
 {
 	static const struct option long_options[] = {
 		{ "timeout", required_argument, NULL, 't' },
@@ -261,7 +261,7 @@ int parse_arguments(struct options_t *opts, int argc, char * const argv[])
 
 int main(int argc, char * const argv[])
 {
-	struct options_t options;
+	struct options options;
 
 	int argi = parse_arguments(&options, argc, argv);
 	if (argi < 0) {

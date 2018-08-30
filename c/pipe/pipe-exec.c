@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2017 Gaël PORTAY <gael.portay@savoirfairelinux.com>
+ * Copyright (c) 2017-2018 Gaël PORTAY <gael.portay@savoirfairelinux.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -51,7 +51,7 @@ int printpid(pid_t pid)
 	return system(buf);
 }
 
-struct options_t {
+struct options {
 	int argc;
 	char * const *argv;
 };
@@ -76,7 +76,7 @@ void usage(FILE * f, char * const arg0)
 		   "", applet(arg0));
 }
 
-int parse_arguments(struct options_t *opts, int argc, char * const argv[])
+int parse_arguments(struct options *opts, int argc, char * const argv[])
 {
 	static const struct option long_options[] = {
 		{ "verbose", no_argument,       NULL, 'v' },
@@ -180,7 +180,7 @@ int read_execv(const char *path, char * const argv[])
 
 int main(int argc, char * const argv[])
 {
-	static struct options_t options;
+	static struct options options;
 	int argi = parse_arguments(&options, argc, argv);
 	if (argi < 0) {
 		fprintf(stderr, "Error: %s: Invalid argument!\n",

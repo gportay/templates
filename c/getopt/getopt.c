@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015-2017 Gaël PORTAY <gael.portay@gmail.com>
+ * Copyright (c) 2015-2018 Gaël PORTAY <gael.portay@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,7 @@ const char VERSION[] = __DATE__ " " __TIME__;
 #include <errno.h>
 #include <getopt.h>
 
-struct options_t {
+struct options {
 	const char *string;
 	long number;
 };
@@ -59,7 +59,7 @@ void usage(FILE * f, char * const arg0)
 		   "", applet(arg0));
 }
 
-int parse_arguments(struct options_t *opts, int argc, char * const argv[])
+int parse_arguments(struct options *opts, int argc, char * const argv[])
 {
 	static const struct option long_options[] = {
 		{ "string",  required_argument, NULL, 's' },
@@ -118,7 +118,7 @@ int parse_arguments(struct options_t *opts, int argc, char * const argv[])
 int main(int argc, char * const argv[])
 {
 	int ret = EXIT_FAILURE;
-	static struct options_t options;
+	static struct options options;
 
 	int argi = parse_arguments(&options, argc, argv);
 	if (argi < 0) {

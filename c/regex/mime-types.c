@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2016-2017 Gaël PORTAY <gael.portay@gmail.com>
+ * Copyright (c) 2016-2018 Gaël PORTAY <gael.portay@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,7 +43,7 @@ static int VERBOSE = 0;
 #define verbose(fmt, ...) if (VERBOSE) fprintf(stdout, fmt, ##__VA_ARGS__)
 #define debug(fmt, ...) if (DEBUG) fprintf(stderr, fmt, ##__VA_ARGS__)
 
-struct options_t {
+struct options {
 	;
 };
 
@@ -67,7 +67,7 @@ void usage(FILE * f, char * const arg0)
 		   "", applet(arg0));
 }
 
-int parse_arguments(struct options_t *opts, int argc, char * const argv[])
+int parse_arguments(struct options *opts, int argc, char * const argv[])
 {
 	static const struct option long_options[] = {
 		{ "verbose", no_argument,       NULL, 'v' },
@@ -119,7 +119,7 @@ int parse_arguments(struct options_t *opts, int argc, char * const argv[])
 int main(int argc, char * const argv[])
 {
 	int ret = EXIT_FAILURE;
-	static struct options_t options;
+	static struct options options;
 	const char **mime;
 	char error[128];
 	regex_t regex;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Gaël PORTAY <gael.portay@gmail.com>
+ * Copyright 2016-2018 Gaël PORTAY <gael.portay@gmail.com>
  *
  * Licensed under the MIT license.
  *
@@ -23,7 +23,7 @@ static int DEBUG = 0;
 #define debug(fmt, ...)  if (DEBUG)      printf(fmt, ##__VA_ARGS__)
 #define debug2(fmt, ...) if (DEBUG >= 2) printf(fmt, ##__VA_ARGS__)
 
-struct options_t {
+struct options {
 	int equal;
 	int quiet;
 };
@@ -52,7 +52,7 @@ void usage(FILE * f, char * const arg0)
 		   "", applet(arg0));
 }
 
-int parse_arguments(struct options_t *opts, int argc, char * const argv[])
+int parse_arguments(struct options *opts, int argc, char * const argv[])
 {
 	static const struct option long_options[] = {
 		{ "equal",   no_argument,       NULL, 'e' },
@@ -109,7 +109,7 @@ int parse_arguments(struct options_t *opts, int argc, char * const argv[])
 int main(int argc, char * const argv[])
 {
 	int cmp, ret = EXIT_FAILURE;
-	static struct options_t options;
+	static struct options options;
 
 	int argi = parse_arguments(&options, argc, argv);
 	if (argi < 0) {
