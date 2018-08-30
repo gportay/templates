@@ -37,6 +37,8 @@ const char VERSION[] = __DATE__ " " __TIME__;
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <assert.h>
+
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <asm/types.h>
@@ -50,6 +52,7 @@ static int DEBUG = 0;
 #define debug(fmt, ...) if (DEBUG) fprintf(stderr, fmt, ##__VA_ARGS__)
 #define hexdebug(addr, buf, size) if (DEBUG) fhexdump(stderr, addr, buf, size)
 
+#define __strncmp(s1, s2) strncmp(s1, s2, sizeof(s2) - 1)
 #define __memcmp(s1, s2) memcmp(s1, s2, sizeof(s2) - 1)
 #define __close(fd) do { \
 	int __error = errno; \
@@ -143,6 +146,34 @@ int parse_arguments(struct options_t *opts, int argc, char * const argv[])
 	return optind;
 }
 
+typedef int uevent_event_cb_t(char *, char *, void *);
+
+typedef int uevent_variable_cb_t(char *, char *, void *);
+
+static int uevent_parse_line(char *line,
+			     uevent_event_cb_t *evt_cb,
+			     uevent_variable_cb_t *var_cb,
+			     void *data);
+
+static int uevent_event(char *action, char *devpath, void *data)
+{
+	(void)data;
+	printf("%s@%s\n", action, devpath);
+	return 0;
+}
+
+static int uevent_variable(char *variable, char *value, void *data)
+{
+	(void)data;
+	if (!__strncmp(variable, "ACTION") ||
+	    !__strncmp(variable, "DEVPATH")) {
+		printf("%s=%s\n", variable, value);
+		return 0;
+	}
+
+	return 1;
+}
+
 int daemonize(const char *path, char * const argv[], const char *devname)
 {
 	pid_t pid = fork();
@@ -155,11 +186,13 @@ int daemonize(const char *path, char * const argv[], const char *devname)
 	if (pid) {
 		int status;
 
+printf("parent: %i, waitpid(pid: %i)\n", getpid(), pid);
 		if (waitpid(pid, &status, 0) == -1) {
 			perror("waitpid");
 			return -1;
 		}
 
+printf("parent: %i!!!!\n", getpid());
 		if (WIFEXITED(status))
 			return WEXITSTATUS(status);
 		else if (WIFSIGNALED(status))
@@ -174,6 +207,7 @@ int daemonize(const char *path, char * const argv[], const char *devname)
 		perror("fork");
 		exit(EXIT_FAILURE);
 	} else if (pid) {
+printf("child: %i!!!!\n", getpid());
 		exit(EXIT_SUCCESS);
 	}
 
@@ -195,6 +229,7 @@ int daemonize(const char *path, char * const argv[], const char *devname)
 		dup2(STDOUT_FILENO, STDERR_FILENO);
 	}
 
+printf("daemon: %i!!!!\n", getpid());
 	execv(path, argv);
 	_exit(127);
 }
@@ -319,6 +354,11 @@ ssize_t netlink_recv(int fd, struct sockaddr_nl *addr)
 				break;
 
 			printf("%s\n", s);
+			if (uevent_parse_line(s, uevent_event, uevent_variable,
+					      NULL))
+				//break;
+				;
+
 			s = n + 1;
 		}
 
@@ -327,6 +367,53 @@ ssize_t netlink_recv(int fd, struct sockaddr_nl *addr)
 	}
 
 	return len;
+}
+
+static int uevent_parse_line(char *line,
+			     uevent_event_cb_t *evt_cb,
+			     uevent_variable_cb_t *var_cb,
+			     void *data)
+{
+	char *at, *equal;
+
+	/* empty line? */
+	if (*line == '\0')
+		return 0;
+
+	/* event? */
+	at = strchr(line, '@');
+	if (at) {
+		char *action, *devpath;
+
+		action = line;
+		devpath = at + 1;
+		*at = '\0';
+
+		if (!evt_cb)
+			return 0;
+
+		return evt_cb(action, devpath, data);
+	}
+
+	/* variable? */
+	equal = strchr(line, '=');
+	if (equal) {
+		char *variable, *value;
+
+		variable = line;
+		value = equal + 1;
+		*equal = '\0';
+
+		if (!var_cb)
+			return 0;
+
+		return var_cb(variable, value, data);
+	}
+
+	fprintf(stderr, "malformated event or variable: \"%s\"."
+			" Must be either action@devpath,\n"
+			"             or variable=value!\n", line);
+	return 1;
 }
 
 int main(int argc, char * const argv[])
@@ -397,17 +484,36 @@ int main(int argc, char * const argv[])
 		return EXIT_FAILURE;
 	}
 
-	char *rcS[] = { "/etc/init.d/rcS", "start", NULL };
-	daemonize("/etc/init.d/rcS", rcS, NULL);
+
+#if 0
 
 	char *sh[] = { "-/bin/sh", NULL };
 	daemonize("/bin/sh", sh, NULL);
-
+daemonize("/bin/sh", sh, "/dev/tty1");
+daemonize("/bin/sh", sh, "/dev/tty2");
+daemonize("/bin/sh", sh, "/dev/tty3");
+daemonize("/bin/sh", sh, "/dev/tty4");
+#else
 	fd = netlink_open(&addr, SIGIO);
 	if (fd == -1) {
 		fprintf(stderr, "Oops!\n");
 		return EXIT_FAILURE;
 	}
+
+#endif
+
+	char *rcS[] = { "/etc/init.d/rcS", "start", NULL };
+	daemonize("/etc/init.d/rcS", rcS, NULL);
+
+#if 0
+if (setup_signal(STDIN_FILENO, SIGIO) == -1) {
+	fprintf(stderr, "Oops!\n");
+	return EXIT_FAILURE;
+}
+#endif
+
+	char *sh[] = { "-/bin/sh", NULL };
+	daemonize("/bin/sh", sh, NULL);
 
 	printf("tini started!\n");
 
@@ -424,7 +530,8 @@ int main(int argc, char * const argv[])
 			perror("sigwaitinfo");
 			break;
 		}
-		debug("sigwaitinfo(): %i: %s\n", sig, strsignal(sig));
+		printf("sigwaitinfo(): %i: %s\n", sig, strsignal(sig));
+		printf("\n");
 
 		if (sig == SIGCHLD) {
 			while (waitpid(-1, NULL, 0) > 0);
@@ -444,6 +551,8 @@ int main(int argc, char * const argv[])
 	}
 
 	if (sig == SIGUSR1) {
+printf("execv(%s, @%p)...\n", argv[0], argv);
+debug("execv(%s, @%p)...\n", argv[0], argv);
 		execv(argv[0], argv);
 		exit(EXIT_FAILURE);
 	}

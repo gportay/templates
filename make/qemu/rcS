@@ -5,9 +5,13 @@
 # Licensed under the MIT license.
 #
 
+PATH=/usr/bin:/usr/sbin:/bin:sbin
+export PATH
+
+echo "rcS started!"
+
 /bin/mount -t proc  proc  /proc
 /bin/mount -t sysfs sysfs /sys
-/bin/mount -t devtmpfs devtmpfs /dev
 
 if ! grep -q '^devtmpfs ' /proc/mounts && \
    ! mount -t devtmpfs devtmps /dev; then
@@ -25,3 +29,7 @@ EOF
 	/bin/mknod -m 400 /dev/tty5 c 4 5
 	/bin/mknod -m 400 /dev/tty6 c 4 6
 fi
+
+/bin/sleep 5
+
+echo "rcS terminated!"

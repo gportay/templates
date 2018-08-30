@@ -30,27 +30,3 @@
 
 /^message \+/,/}/p
 /^enum \+/,/}/p
-
-
-/^function toto {/,/^}$/ s,^\t,    ,
-
-
-function toto {
-	toto
-}
-
-    toto
-	
-+++
-asdfas
-asdfas
-dfasdfa
-sdfasdf
-
----
-asdf
-asdfasdfa
-sdfasdfasdf
-
-
-
