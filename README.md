@@ -20,6 +20,8 @@ started with a brand new project or to reuse code.
 [addressbook](c++/protobuf/README.md) - example of how to use protobuf API and
 create a Makefile
 
+[alarm](c/alarm/README.md) - example of how to use alarm function
+
 [ueventcat](c/netlink/README.md) - concatenate UEVENT(s) to standard output
 
 [daemonize](c/daemonize/README.md) - create daemon process
