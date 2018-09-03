@@ -20,6 +20,8 @@ started with a brand new project or to reuse code.
 [addressbook](c++/protobuf/README.md) - example of how to use protobuf API and
 create a Makefile
 
+[alarm](c/alarm/README.md) - example of how to use alarm function
+
 [ueventcat](c/netlink/README.md) - concatenate UEVENT(s) to standard output
 
 [daemonize](c/daemonize/README.md) - create daemon process
@@ -41,6 +43,9 @@ ascii
 and subscriber applets
 
 [mime-types](c/regex/README.md) - example of how to use regex API
+
+[sigwaitinfo](c/sigwaitinfo/README.md) - example of how to use sigwaitinfo
+function
 
 [uevent](c/parser/uevent/README.md) - simple C kobject/uevent parser without
 context
@@ -96,7 +101,7 @@ Written by Gaël PORTAY *gael.portay@gmail.com*
 
 ## COPYRIGHT
 
-Copyright (c) 2015-2017 Gaël PORTAY
+Copyright (c) 2015-2018 Gaël PORTAY
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the MIT License.
