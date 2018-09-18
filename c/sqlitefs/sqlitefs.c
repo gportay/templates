@@ -196,6 +196,32 @@ static int readdir_cb(void *data, int argc, char **argv, char **colname)
 	return SQLITE_OK;
 }
 
+static int add_file(sqlite3 *db, const char *file, const char *parent,
+		    const struct stat *st)
+{
+	char sql[BUFSIZ];
+	char *e;
+
+	snprintf(sql, sizeof(sql), "INSERT OR REPLACE INTO files(path, parent, "
+		 "st_dev, st_ino, st_mode, st_nlink, st_uid, st_gid, st_rdev, "
+		 "st_size, st_blksize, st_blocks, st_atim_sec, st_atim_nsec, "
+		 "st_mtim_sec, st_mtim_nsec, st_ctim_sec, st_ctim_nsec) "
+		 "VALUES(\"%s\", \"%s\", %lu, %lu, %u, %lu, %u, %u, %lu, %lu, "
+		 "%lu, %lu, %lu, %lu, %lu, %lu, %lu, %lu);",
+		 file, parent, st->st_dev, st->st_ino, st->st_mode,
+		 st->st_nlink, st->st_uid, st->st_gid, st->st_rdev, st->st_size,
+		 st->st_blksize, st->st_blocks, st->st_atim.tv_sec,
+		 st->st_atim.tv_nsec, st->st_mtim.tv_sec, st->st_mtim.tv_nsec,
+		 st->st_ctim.tv_sec, st->st_ctim.tv_nsec);
+	if (sqlite3_exec(db, sql, NULL, 0, &e) != SQLITE_OK) {
+		fprintf(stderr, "sqlite3_exec: %s\n", e);
+		sqlite3_free(e);
+		return 1;
+	}
+
+	return 0;
+}
+
 /** Get file attributes.
  *
  * Similar to stat().  The 'st_dev' and 'st_blksize' fields are
@@ -425,6 +451,11 @@ static void *sqlitefs_init(struct fuse_conn_info *conn)
 		if (sqlite3_exec(db, sql, NULL, 0, &e) != SQLITE_OK) {
 			fprintf(stderr, "sqlite3_exec: %s\n", e);
 			sqlite3_free(e);
+			sqlite3_close(db);
+			return NULL;
+		}
+
+		if (add_file(db, "/.Trash", "/", &st)) {
 			sqlite3_close(db);
 			return NULL;
 		}
