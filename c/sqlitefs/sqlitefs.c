@@ -172,6 +172,30 @@ static int getattr_cb(void *data, int argc, char **argv, char **colname)
 	return SQLITE_OK;
 }
 
+struct readdir_data {
+	const char *parent;
+	void *buffer;
+	fuse_fill_dir_t filler;
+};
+
+static int readdir_cb(void *data, int argc, char **argv, char **colname)
+{
+	struct readdir_data *pdata = (struct readdir_data *)data;
+	size_t len;
+	int i;
+	(void)colname;
+
+	len = strlen(pdata->parent);
+	for (i = 0; i < argc; i++) {
+		if (strcmp(pdata->parent, argv[0]) == 0)
+			continue;
+
+		pdata->filler(pdata->buffer, &argv[0][len], NULL, 0);
+	}
+
+	return SQLITE_OK;
+}
+
 /** Get file attributes.
  *
  * Similar to stat().  The 'st_dev' and 'st_blksize' fields are
@@ -232,6 +256,65 @@ static int sqlitefs_getattr(const char *path, struct stat *st)
 	return 0;
 }
 
+/** Read directory
+ *
+ * This supersedes the old getdir() interface.  New applications
+ * should use this.
+ *
+ * The filesystem may choose between two modes of operation:
+ *
+ * 1) The readdir implementation ignores the offset parameter, and
+ * passes zero to the filler function's offset.  The filler
+ * function will not return '1' (unless an error happens), so the
+ * whole directory is read in a single readdir operation.  This
+ * works just like the old getdir() method.
+ *
+ * 2) The readdir implementation keeps track of the offsets of the
+ * directory entries.  It uses the offset parameter and always
+ * passes non-zero offset to the filler function.  When the buffer
+ * is full (or an error happens) the filler function will return
+ * '1'.
+ *
+ * Introduced in version 2.3
+ */
+static int sqlitefs_readdir(const char *path, void *buffer,
+			    fuse_fill_dir_t filler, off_t offset,
+			    struct fuse_file_info *fi)
+{
+	sqlite3 *db = fuse_get_context()->private_data;
+	struct readdir_data data = {
+		.parent = path,
+		.buffer = buffer,
+		.filler = filler,
+	};
+	char sql[BUFSIZ];
+	char *e;
+	int ret;
+	(void)offset;
+	(void)fi;
+
+	if (!db) {
+		fprintf(stderr, "%s: Invalid context\n", __FUNCTION__);
+		errno = EINVAL;
+		return -1;
+	}
+
+	filler(buffer, ".", NULL, 0);
+	filler(buffer, "..", NULL, 0);
+
+	snprintf(sql, sizeof(sql),
+		 "SELECT path FROM files WHERE parent = \"%s\";", path);
+	ret = sqlite3_exec(db, sql, readdir_cb, &data, &e);
+	if (ret != SQLITE_OK) {
+		fprintf(stderr, "sqlite3_exec: %s\n", e);
+		sqlite3_free(e);
+		errno = EACCES;
+		return -1;
+	}
+
+	return 0;
+}
+
 /**
  * Initialize filesystem
  *
@@ -263,6 +346,7 @@ static void *sqlitefs_init(struct fuse_conn_info *conn)
 		snprintf(sql, sizeof(sql),
 		       "CREATE TABLE IF NOT EXISTS files("
 				"path TEXT NOT NULL PRIMARY KEY, "
+				"parent TEXT NOT NULL, "
 				"st_dev INT(8), "
 				"st_ino INT(8), "
 				"st_mode INT(4), "
@@ -301,6 +385,7 @@ static void *sqlitefs_init(struct fuse_conn_info *conn)
 		snprintf(sql, sizeof(sql),
 			"INSERT OR REPLACE INTO files("
 				"path, "
+				"parent, "
 				"st_dev, "
 				"st_ino, "
 				"st_mode, "
@@ -317,7 +402,8 @@ static void *sqlitefs_init(struct fuse_conn_info *conn)
 				"st_mtim_nsec, "
 				"st_ctim_sec, "
 				"st_ctim_nsec)"
-			"VALUES(\"%s\", %lu, %lu, %u, %lu, %u, %u, %lu, %lu, %lu, %lu, %lu, %lu, %lu, %lu, %lu, %lu);",
+			"VALUES(\"%s\", \"%s\", %lu, %lu, %u, %lu, %u, %u, %lu, %lu, %lu, %lu, %lu, %lu, %lu, %lu, %lu, %lu);",
+				"/",
 				"/",
 				st.st_dev,
 				st.st_ino,
@@ -368,6 +454,7 @@ static void sqlitefs_destroy(void *ptr)
 
 static struct fuse_operations operations = {
 	.getattr = sqlitefs_getattr,
+	.readdir = sqlitefs_readdir,
 	.init = sqlitefs_init,
 	.destroy = sqlitefs_destroy,
 };
