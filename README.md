@@ -51,6 +51,9 @@ function
 [sqlite-blob](c/sqlite/README.md) - example of how to insert/replace or select a
 blob in sqlite
 
+[sqlitefs](c/sqlitefs/README.md) - example of how to use FUSE using in a SQLite
+database filesystem
+
 [uevent](c/parser/uevent/README.md) - simple C kobject/uevent parser without
 context
 
