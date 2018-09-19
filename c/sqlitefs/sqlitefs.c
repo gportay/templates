@@ -408,54 +408,20 @@ static void *sqlitefs_init(struct fuse_conn_info *conn)
 		st.st_mtime = time(NULL);
 		st.st_ctime = time(NULL);
 
-		snprintf(sql, sizeof(sql),
-			"INSERT OR REPLACE INTO files("
-				"path, "
-				"parent, "
-				"st_dev, "
-				"st_ino, "
-				"st_mode, "
-				"st_nlink, "
-				"st_uid, "
-				"st_gid, "
-				"st_rdev, "
-				"st_size, "
-				"st_blksize, "
-				"st_blocks, "
-				"st_atim_sec, "
-				"st_atim_nsec, "
-				"st_mtim_sec, "
-				"st_mtim_nsec, "
-				"st_ctim_sec, "
-				"st_ctim_nsec)"
-			"VALUES(\"%s\", \"%s\", %lu, %lu, %u, %lu, %u, %u, %lu, %lu, %lu, %lu, %lu, %lu, %lu, %lu, %lu, %lu);",
-				"/",
-				"/",
-				st.st_dev,
-				st.st_ino,
-				st.st_mode,
-				st.st_nlink,
-				st.st_uid,
-				st.st_gid,
-				st.st_rdev,
-				st.st_size,
-				st.st_blksize,
-				st.st_blocks,
-				st.st_atim.tv_sec,
-				st.st_atim.tv_nsec,
-				st.st_mtim.tv_sec,
-				st.st_mtim.tv_nsec,
-				st.st_ctim.tv_sec,
-				st.st_ctim.tv_nsec
-			);
-		if (sqlite3_exec(db, sql, NULL, 0, &e) != SQLITE_OK) {
-			fprintf(stderr, "sqlite3_exec: %s\n", e);
-			sqlite3_free(e);
+		if (add_file(db, "/", "/", &st)) {
 			sqlite3_close(db);
 			return NULL;
 		}
 
 		if (add_file(db, "/.Trash", "/", &st)) {
+			sqlite3_close(db);
+			return NULL;
+		}
+
+		st.st_mode = S_IFREG | 0644;
+		st.st_nlink = 1;
+		st.st_size = 1024;
+		if (add_file(db, "/autorun.inf", "/", &st)) {
 			sqlite3_close(db);
 			return NULL;
 		}
@@ -485,6 +451,7 @@ static void sqlitefs_destroy(void *ptr)
 
 static struct fuse_operations operations = {
 	.getattr = sqlitefs_getattr,
+	.read = sqlitefs_read,
 	.readdir = sqlitefs_readdir,
 	.init = sqlitefs_init,
 	.destroy = sqlitefs_destroy,
