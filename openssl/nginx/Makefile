@@ -31,10 +31,10 @@ all: cacert.pem
 private newcerts:
 	mkdir $@
 
-serial:
+serial crlnumber:
 	echo "00" >$@
 
-index.txt:
+index.txt index.txt.attr:
 	touch $@
 
 private/cakey.pem: | private
@@ -66,6 +66,11 @@ openssl.cnf: | newcerts index.txt serial
 %.p12: openssl.cnf cacert.pem %.cert.pem %.key.pem
 	openssl pkcs12 -export -in $*.cert.pem -inkey $*.key.pem -certfile cacert.pem -out $@
 
+crl.pem: openssl.cnf index.txt.attr crlnumber private/cakey.pem cacert.pem
+	openssl ca -config openssl.cnf \
+	           -keyfile private/cakey.pem -cert cacert.pem \
+	           -gencrl -out $@
+
 .PHONY: install
 install: SHELL=/bin/bash
 install:
@@ -77,5 +82,5 @@ install:
 .PHONY: clean
 clean: SHELL=/bin/bash
 clean:
-	rm -rf openssl.cnf newcerts private index.txt{,.attr} serial *.old *.pem *.p12
+	rm -rf openssl.cnf newcerts private index.txt{,.attr} serial crlnumber *.old *.pem *.p12
 
