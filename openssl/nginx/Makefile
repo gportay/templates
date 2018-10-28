@@ -26,9 +26,9 @@ OU ?= dev
 .SECONDARY:
 
 .PHONY: all
-all: ca.crt
+all: cacert.pem
 
-newcerts:
+private newcerts:
 	mkdir $@
 
 serial:
@@ -37,11 +37,11 @@ serial:
 index.txt:
 	touch $@
 
-ca.key:
+private/cakey.pem: | private
 	openssl genrsa -out $@ 2048
 
-ca.crt: CN ?= www.portay.io
-ca.crt: ca.key
+cacert.pem: CN ?= www.portay.io
+cacert.pem: private/cakey.pem
 	openssl req -new -x509 -days 3650 \
 		    -subj "/C=$(C)/ST=$(ST)/L=$(L)/O=$(O)/OU=$(OU)/CN=$(CN)" \
 		    -key $< -out $@
@@ -50,32 +50,32 @@ openssl.cnf: | newcerts index.txt serial
 	sed -e '/^dir/adir		= $$ENV::PWD' \
 	    /etc/ssl/openssl.cnf >$@
 
-%.key:
+%.key.pem:
 	openssl genrsa -out $@ 2048
 
-%.csr: openssl.cnf %.key
+%.csr.pem: openssl.cnf %.key.pem
 	openssl req -config openssl.cnf \
 		    -subj "/C=$(C)/ST=$(ST)/L=$(L)/O=$(O)/OU=$(OU)/CN=$*" \
-		    -new -key $*.key -out $@
+		    -new -key $*.key.pem -out $@
 
-%.crt: openssl.cnf ca.key ca.crt %.csr
+%.cert.pem: openssl.cnf private/cakey.pem cacert.pem %.csr.pem
 	openssl ca -batch -config openssl.cnf -days 3650 \
-	           -keyfile ca.key -cert ca.crt -policy policy_anything \
-	           -in $*.csr -out $@
+	           -keyfile private/cakey.pem -cert cacert.pem -policy policy_anything \
+	           -in $*.csr.pem -out $@
 
-%.p12: openssl.cnf ca.crt %.crt %.key
-	openssl pkcs12 -export -in $*.crt -inkey $*.key -certfile ca.crt -out $@
+%.p12: openssl.cnf cacert.pem %.cert.pem %.key.pem
+	openssl pkcs12 -export -in $*.cert.pem -inkey $*.key.pem -certfile cacert.pem -out $@
 
 .PHONY: install
 install: SHELL=/bin/bash
 install:
 	install -d $(DESTDIR)/etc/ssl/
-	cp -a newcerts $(DESTDIR)/etc/ssl/
+	cp -a private newcerts $(DESTDIR)/etc/ssl/
 	sed -e '/^dir		= $$ENV::PWD/d' openssl.cnf >$(DESTDIR)/etc/ssl/openssl.cnf
 	install index.txt{,.attr} serial $(DESTDIR)/etc/ssl/
 
 .PHONY: clean
 clean: SHELL=/bin/bash
 clean:
-	rm -rf openssl.cnf newcerts index.txt{,.attr} serial *.old *.key *.crt *.csr *.p12
+	rm -rf openssl.cnf newcerts private index.txt{,.attr} serial *.old *.pem *.p12
 
