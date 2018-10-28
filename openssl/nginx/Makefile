@@ -23,6 +23,8 @@ L  ?= Montreal
 O  ?= L'electron du libre
 OU ?= dev
 
+.SECONDARY:
+
 .PHONY: all
 all: ca.crt
 
@@ -48,6 +50,22 @@ openssl.cnf: | newcerts index.txt serial
 	sed -e '/^dir/adir		= $$ENV::PWD' \
 	    /etc/ssl/openssl.cnf >$@
 
+%.key:
+	openssl genrsa -out $@ 2048
+
+%.csr: openssl.cnf %.key
+	openssl req -config openssl.cnf \
+		    -subj "/C=$(C)/ST=$(ST)/L=$(L)/O=$(O)/OU=$(OU)/CN=$*" \
+		    -new -key $*.key -out $@
+
+%.crt: openssl.cnf ca.key ca.crt %.csr
+	openssl ca -batch -config openssl.cnf -days 3650 \
+	           -keyfile ca.key -cert ca.crt -policy policy_anything \
+	           -in $*.csr -out $@
+
+%.p12: openssl.cnf ca.crt %.crt %.key
+	openssl pkcs12 -export -in $*.crt -inkey $*.key -certfile ca.crt -out $@
+
 .PHONY: install
 install: SHELL=/bin/bash
 install:
@@ -57,6 +75,7 @@ install:
 	install index.txt{,.attr} serial $(DESTDIR)/etc/ssl/
 
 .PHONY: clean
+clean: SHELL=/bin/bash
 clean:
-	rm -rf openssl.cnf newcerts index.txt serial *.key *.crt
+	rm -rf openssl.cnf newcerts index.txt{,.attr} serial *.old *.key *.crt *.csr *.p12
 
