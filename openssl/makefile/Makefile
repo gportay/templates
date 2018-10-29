@@ -158,6 +158,7 @@ install:
 	for file in cacert.pem index.txt{,.attr} serial; do \
 		if test -e $$file; then install $$file $(DESTDIR)/etc/ssl/; fi ;\
 	done
+	cp Makefile $(DESTDIR)/etc/ssl/
 
 .PHONY: clean
 clean: SHELL=/bin/bash
