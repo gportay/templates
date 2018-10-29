@@ -89,6 +89,25 @@ root: root_selfsigned
 %.key.pem: %.key-crypted.pem
 	openssl rsa -in $*.key-crypted.pem -out $*.key.pem
 
+%.key-crypted.pem_dump:
+	openssl rsa -in $*.key-crypted.pem -text -noout
+
+%.key.pem_dump:
+	openssl rsa -in $*.key.pem -text -noout
+
+%.cert.pem_dump:
+	openssl x509 -in $*.cert.pem -text -noout
+
+%.csr.pem_dump:
+	openssl req -in $*.csr.pem -text -noout
+
+.PHONY: crl.pem_dump
+crl.pem_dump:
+	openssl crl -in crl.pem -noout -text
+
+%.p12_dump:
+	openssl pkcs12 -info -in $*.p12
+
 .PHONY: install
 install: SHELL=/bin/bash
 install:
