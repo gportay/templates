@@ -152,9 +152,13 @@ crl.pem_dump:
 install: SHELL=/bin/bash
 install:
 	install -d $(DESTDIR)/etc/ssl/
-	cp -a private newcerts $(DESTDIR)/etc/ssl/
-	sed -e '/^dir		= $$ENV::PWD/d' openssl.cnf >$(DESTDIR)/etc/ssl/openssl.cnf
-	install index.txt{,.attr} serial $(DESTDIR)/etc/ssl/
+	for dir in private newcerts; do \
+		if test -d $$dir; then cp -a $$dir $(DESTDIR)/etc/ssl/; fi ;\
+	done
+	if test -e openssl.cnf; then sed -e '/^dir		= $$ENV::PWD/d' openssl.cnf >$(DESTDIR)/etc/ssl/openssl.cnf; fi
+	for file in index.txt{,.attr} serial; do \
+		if test -e $$file; then install $$file $(DESTDIR)/etc/ssl/; fi ;\
+	done
 
 .PHONY: clean
 clean: SHELL=/bin/bash
