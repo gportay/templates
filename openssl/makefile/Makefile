@@ -87,8 +87,7 @@ openssl.cnf: | newcerts index.txt serial
 	openssl genrsa -out $@ 2048
 
 %.csr.pem: openssl.cnf %.key.pem
-	openssl req -config openssl.cnf \
-		    -subj "/C=$(C)/ST=$(ST)/L=$(L)/O=$(O)/OU=$(OU)/CN=$*" \
+	openssl req -subj "/C=$(C)/ST=$(ST)/L=$(L)/O=$(O)/OU=$(OU)/CN=$*" \
 		    -new -key $*.key.pem -out $@
 
 %.cert.pem: openssl.cnf private/cakey.pem cacert.pem %.csr.pem
