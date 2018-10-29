@@ -71,6 +71,10 @@ crl.pem: openssl.cnf index.txt.attr crlnumber private/cakey.pem cacert.pem
 	           -keyfile private/cakey.pem -cert cacert.pem \
 	           -gencrl -out $@
 
+%_revoke: %
+	openssl ca -config openssl.cnf \
+	           -revoke $*
+
 .PHONY: install
 install: SHELL=/bin/bash
 install:
