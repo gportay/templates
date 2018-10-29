@@ -99,6 +99,7 @@ openssl.cnf: | newcerts index.txt serial
 %.p12: openssl.cnf cacert.pem %.cert.pem %.key.pem
 	openssl pkcs12 -export -in $*.cert.pem -inkey $*.key.pem -certfile cacert.pem -out $@
 
+.PHONY: crl.pem
 crl.pem: openssl.cnf index.txt.attr crlnumber private/cakey.pem cacert.pem
 	openssl ca -config openssl.cnf \
 	           -keyfile private/cakey.pem -cert cacert.pem \
