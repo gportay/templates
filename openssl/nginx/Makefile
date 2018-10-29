@@ -28,6 +28,39 @@ OU ?= dev
 .PHONY: all
 all: cacert.pem
 
+.SILENT: help
+help:
+	echo "help: display this message"
+	echo ""
+	echo "cakey.pem,cacert.pem[=all]: Generate a new CA private key and self-signed certificate."
+	echo "                            Example: $(MAKE) [CN=www.portay.io]"
+	echo ""
+	echo "%.key.pem: Generate a private key."
+	echo "%.cert.pem: Generate a CA-signed certificate."
+	echo "%.csr.pem: Generate a certificate signing request (CSR)."
+	echo ""
+	echo "%.p12: Convert a PEM certificate file and a private key to PKCS#12."
+	echo "       Example: $(MAKE) gael.portay@gmail.com.p12"
+	echo ""
+	echo "%_revoke: Revoke a PEM certificate."
+	echo "%         Example: $(MAKE) gael.portay@gmail.com.p12"
+	echo "%         Example: $(MAKE) newcerts/00.pem"
+	echo ""
+	echo "crl.pem: Generate the certificate revocation lists (CRL)."
+	echo "%        Example: $(MAKE) crl.pem"
+	echo ""
+	echo "%.key-crypted.pem: Add passphrase to private key."
+	echo "%.key.pem: Remove passphrase from private key."
+	echo ""
+	echo "%.key-crypted.pem_dump,%.key.pem_dump: Dump (crypted) private key."
+	echo "%.cert.pem_dump: Dump certificate."
+	echo "%.csr.pem_dump: Dump certificate signing request (CSR)."
+	echo "crl.pem_dump: Dump certificate revocation lists (CRL)."
+	echo "%.p12_dump: Dump PKCS#12."
+	echo "%.pem_to_der: Convert a PEM file to DER."
+	echo "%.der_to_pem: Convert a DER file to PEM."
+	echo ""
+
 private newcerts:
 	mkdir $@
 
