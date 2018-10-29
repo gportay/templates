@@ -108,6 +108,12 @@ crl.pem_dump:
 %.p12_dump:
 	openssl pkcs12 -info -in $*.p12
 
+%.pem_to_der:
+	openssl x509 -outform der -in $*.pem -out $*.der
+
+%.der_to_pem:
+	openssl x509 -inform der -in $*.der -out $*.pem
+
 .PHONY: install
 install: SHELL=/bin/bash
 install:
