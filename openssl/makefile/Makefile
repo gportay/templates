@@ -91,6 +91,7 @@ openssl.cnf: | newcerts index.txt serial
 		    -new -key $*.key.pem -out $@
 
 %.cert.pem: openssl.cnf private/cakey.pem cacert.pem %.csr.pem
+	PWD=$(CURDIR) \
 	openssl ca -batch -config openssl.cnf -days 3650 \
 	           -keyfile private/cakey.pem -cert cacert.pem -policy policy_anything \
 	           -in $*.csr.pem -out $@
@@ -100,11 +101,13 @@ openssl.cnf: | newcerts index.txt serial
 
 .PHONY: crl.pem
 crl.pem: openssl.cnf index.txt.attr crlnumber private/cakey.pem cacert.pem
+	PWD=$(CURDIR) \
 	openssl ca -config openssl.cnf \
 	           -keyfile private/cakey.pem -cert cacert.pem \
 	           -gencrl -out $@
 
 %_revoke: %
+	PWD=$(CURDIR) \
 	openssl ca -config openssl.cnf \
 	           -revoke $*
 
