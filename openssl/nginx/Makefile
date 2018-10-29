@@ -75,6 +75,20 @@ crl.pem: openssl.cnf index.txt.attr crlnumber private/cakey.pem cacert.pem
 	openssl ca -config openssl.cnf \
 	           -revoke $*
 
+.PHONY: root
+root: root_selfsigned
+%_selfsigned:
+	openssl req -x509 -days 3650 \
+		    -subj "/C=$(C)/ST=$(ST)/L=$(L)/O=$(O)/OU=$(OU)/CN=$*" \
+	            -newkey rsa\:2048 -keyout $*.key-crypted.pem \
+	            -out $*.cert.pem
+
+%.key-crypted.pem: %.key.pem
+	openssl rsa -aes256 -in $*.key.pem -out $*.key-crypted.pem
+
+%.key.pem: %.key-crypted.pem
+	openssl rsa -in $*.key-crypted.pem -out $*.key.pem
+
 .PHONY: install
 install: SHELL=/bin/bash
 install:
