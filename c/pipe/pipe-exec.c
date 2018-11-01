@@ -44,7 +44,7 @@ static int DEBUG = 0;
 #define verbose(fmt, ...) if (VERBOSE) fprintf(stderr, fmt, ##__VA_ARGS__)
 #define debug(fmt, ...) if (DEBUG) fprintf(stderr, fmt, ##__VA_ARGS__)
 
-int printpid(pid_t pid)
+int printfds(pid_t pid)
 {
 	char buf[256];
 	snprintf(buf, sizeof(buf), "ls -l /proc/%i/fd", pid);
@@ -139,9 +139,9 @@ int read_execv(const char *path, char * const argv[])
 	verbose("child: %i\n", pid);
 	if (DEBUG > 1) {
 		printf("\nParent:\n");
-		printpid(getpid());
+		printfds(getpid());
 		printf("\nChild:\n");
-		printpid(pid);
+		printfds(pid);
 	}
 
 	for (;;) {
