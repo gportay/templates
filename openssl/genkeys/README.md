@@ -2,7 +2,7 @@
 
 ## NAME
 
-[Makefile](Makefile) - provides implicite rules to generate openssl RSA keys
+[Makefile](Makefile) - provides implicit rules to generate openssl RSA keys
 
 ## SYNOPSIS
 
@@ -38,7 +38,7 @@ Clean crypted/decrypted and signed text messages, and removes RSA keys.
 
 ## DESCRIPTION
 
-This _Makefile_ provides implicite rules to generate _RSA_ keys using
+This _Makefile_ provides implicit rules to generate _RSA_ keys using
 **openssl(1)**.
 
 Those implicit [rules](Makefile#L27-L52) are freely available for use, reuse,

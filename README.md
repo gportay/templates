@@ -63,7 +63,7 @@ and subscriber applets using protobuf messages
 
 [udev](android/udev) - udev rules installer for oneplus devices
 
-[openssl](openssl/genkeys/README.md) - provides implicite rules to generate
+[openssl](openssl/genkeys/README.md) - provides implicit rules to generate
 openssl RSA keys
 
 [foreach](makefile/foreach/README.md) - build a repository of archive using

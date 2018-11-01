@@ -16,8 +16,8 @@
 [addressbook](https://developers.google.com/protocol-buffers/docs/cpptutorial)
 example from Google.
 
-The [Makefile](Makefile) is the interresting part. It adds _implicite rules_
-for [proto](Makefile#L36-L37) files (i.e. _%.pb.cc_).
+The [Makefile](Makefile) is the interresting part. It adds _implicit rules_ for
+[proto](Makefile#L36-L37) files (i.e. _%.pb.cc_).
 
 ## OPTIONS
 
