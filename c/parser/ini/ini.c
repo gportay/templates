@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2017  Vivien Didelot
- *                     Gaël Portay
+ *               2017-2018  Gaël Portay
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ static int ini_parse_line(char *line,
 		line++;
 
 	/* comment or empty line? */
-	if (*line == '\0' || *line == '#')
+	if (*line == '\0' || *line == ';' || *line == '#')
 		return 0;
 
 	/* section? */
