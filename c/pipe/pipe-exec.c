@@ -67,7 +67,7 @@ static inline const char *applet(const char *arg0)
 
 void usage(FILE * f, char * const arg0)
 {
-	fprintf(f, "Usage: %s [OPTIONS]\n\n"
+	fprintf(f, "Usage: %s [OPTIONS] [--] PATH [ARGV...]\n\n"
 		   "Options:\n"
 		   " -v or --verbose        Turn on verbose messages.\n"
 		   " -D or --debug          Turn on debug messages.\n"
