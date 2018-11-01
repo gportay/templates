@@ -43,6 +43,12 @@ static int DEBUG = 0;
 #define debug(fmt, ...) if (DEBUG) fprintf(stderr, fmt, ##__VA_ARGS__)
 #define hexdebug(addr, buf, size) if (DEBUG) fhexdump(stderr, addr, buf, size)
 
+static int SCISSORS = 0;
+static const char *scissors = "\
+----- >8 -----------------------------------------------------------------------\
+";
+#define scissors(f) if (SCISSORS) fprintf(f, "%s", scissors)
+
 #define __memcmp(s1, s2) memcmp(s1, s2, sizeof(s2) - 1)
 
 #ifndef UEVENT_BUFFER_SIZE
@@ -74,6 +80,7 @@ void usage(FILE * f, char * const arg0)
 		   "Concatenate UEVENTS(s) to standard output.\n\n"
 		   "Read netlink socket.\n\n"
 		   "Options:\n"
+		   " -c or --scissors       Add a scissor line between event.\n"
 		   " -v or --verbose        Turn on verbose messages.\n"
 		   " -D or --debug          Turn on debug messages.\n"
 		   " -h or --help           Display this message.\n"
@@ -84,6 +91,7 @@ void usage(FILE * f, char * const arg0)
 int parse_arguments(struct options *opts, int argc, char * const argv[])
 {
 	static const struct option long_options[] = {
+		{ "scissors", no_argument,      NULL, 'c' },
 		{ "verbose", no_argument,       NULL, 'v' },
 		{ "debug",   no_argument,       NULL, 'D' },
 		{ "version", no_argument,       NULL, 'V' },
@@ -94,12 +102,16 @@ int parse_arguments(struct options *opts, int argc, char * const argv[])
 	opterr = 0;
 	for (;;) {
 		int index;
-		int c = getopt_long(argc, argv, "vDVh", long_options, &index);
+		int c = getopt_long(argc, argv, "cvDVh", long_options, &index);
 		if (c == -1) {
 			break;
 		}
 
 		switch (c) {
+		case 'c':
+			SCISSORS++;
+			break;
+
 		case 'v':
 			VERBOSE++;
 			break;
@@ -223,6 +235,7 @@ int main(int argc, char * const argv[])
 			s = n + 1;
 		}
 
+		scissors(stdout);
 		printf("\n");
 	}
 
