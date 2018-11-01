@@ -1,4 +1,4 @@
-#!/usr/bin/gmake -sf
+#!/usr/bin/make -sf
 #
 # Copyright 2016-2017 Gaël PORTAY <gael.portay@gmail.com>
 #
@@ -80,5 +80,5 @@ uninstall-user:
 	make -f $(__makefile) uninstall DESTDIR=~ PREFIX=
 
 clean:
-	rm -f asm asm.jar asm-*.jar
+	rm -f Makefile asm asm.jar asm-*.jar
 

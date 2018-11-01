@@ -47,7 +47,7 @@ moves the very first close bracket _}_ at line _1_ to the _end_.
 	}
 	section2() {
 	key3=val3
-	}	
+	}
 
 A last trick is needed to handle empty _sections_. _POSIX shells_ complain in
 case of an empty function. This empty function generates an error.

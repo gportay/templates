@@ -18,6 +18,8 @@ all:: addressbook
 
 addressbook: $(OBJ)
 
+addressbook.o: addressbook.pb.h
+
 ifeq (,$(shell which protoc 2>/dev/null))
 all:: /usr/local/bin/protoc
 
@@ -33,7 +35,7 @@ CXXFLAGS += -I. -std=c++11
 LDFLAGS += -L/usr/local/lib
 LDFLAGS += $(shell pkg-config --cflags --libs protobuf) -lstdc++
 
-%.pb.cc: %.proto
+%.pb.cc %.pb.h: %.proto
 	protoc --cpp_out=$(<D) $<
 
 debug:
