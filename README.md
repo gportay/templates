@@ -47,6 +47,9 @@ and subscriber applets
 [sigwaitinfo](c/sigwaitinfo/README.md) - example of how to use sigwaitinfo
 function
 
+[sqlite-blob](c/sqlite/README.md) - example of how to insert/replace or select a
+blob in sqlite
+
 [uevent](c/parser/uevent/README.md) - simple C kobject/uevent parser without
 context
 
