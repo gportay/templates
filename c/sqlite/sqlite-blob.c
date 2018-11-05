@@ -211,7 +211,7 @@ int main(int argc, char * const argv[])
 			goto exit;
 		}
 
-		sql = "INSERT INTO blobs(file, content) VALUES(?, ?)";
+		sql = "INSERT OR REPLACE INTO blobs(file, content) VALUES(?, ?)";
 		if (sqlite3_prepare(db, sql, -1, &stmt, 0) != SQLITE_OK) {
 			__sqlite3_perror("sqlite3_prepare", db);
 			goto exit;
