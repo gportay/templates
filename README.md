@@ -22,8 +22,6 @@ create a Makefile
 
 [alarm](c/alarm/README.md) - example of how to use alarm function
 
-[ueventcat](c/netlink/README.md) - concatenate UEVENT(s) to standard output
-
 [blkpg-part](c/ioctl/README.md) - partition table and disk geometry handling
 utility
 
@@ -40,12 +38,12 @@ ascii
 
 [line](c/parser/line/README.md) - simple C line parser without context
 
+[mime-types](c/regex/README.md) - example of how to use regex API
+
 [pexec](c/pipe/README.md) - execute file in an interprocess channel
 
 [publisher,epoll-publisher,subscriber](c/zmq/README.md) - simple ZMQ publisher
 and subscriber applets
-
-[mime-types](c/regex/README.md) - example of how to use regex API
 
 [sigwaitinfo](c/sigwaitinfo/README.md) - example of how to use sigwaitinfo
 function
@@ -55,6 +53,8 @@ blob in sqlite
 
 [uevent](c/parser/uevent/README.md) - simple C kobject/uevent parser without
 context
+
+[ueventcat](c/netlink/README.md) - concatenate UEVENT(s) to standard output
 
 [verrevcmp](pkg/version-lt/README.md) - comparison of version numbers
 
