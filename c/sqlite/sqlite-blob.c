@@ -40,6 +40,7 @@ struct options {
 	int argc;
 	char * const *argv;
 	const char *file;
+	int extract;
 };
 
 static inline const char *applet(const char *arg0)
@@ -55,10 +56,12 @@ void usage(FILE * f, char * const arg0)
 {
 	fprintf(f, "Usage: %s [OPTIONS] FILE\n"
 		   "\n"
-		   "Saves many files together into a single database.\n"
+		   "Saves many files together into a single database, and can "
+		   "restore individual files\nfrom the database.\n"
 		   "\n"
 		   "Options:\n"
 		   " -f or --file FILE     Set the path to database.\n"
+		   " -x or --extract       Extract file from an database.\n"
 		   " -h or --help          Display this message.\n"
 		   " -V or --version       Display the version.\n"
 		   "", applet(arg0));
@@ -68,6 +71,7 @@ int parse_arguments(struct options *opts, int argc, char * const argv[])
 {
 	static const struct option long_options[] = {
 		{ "file",    required_argument, NULL, 'f' },
+		{ "extract", required_argument, NULL, 'x' },
 		{ "version", no_argument,       NULL, 'V' },
 		{ "help",    no_argument,       NULL, 'h' },
 		{ NULL,      no_argument,       NULL, 0   }
@@ -76,7 +80,7 @@ int parse_arguments(struct options *opts, int argc, char * const argv[])
 	opterr = 0;
 	for (;;) {
 		int index;
-		int c = getopt_long(argc, argv, "d:Vh", long_options, &index);
+		int c = getopt_long(argc, argv, "d:xVh", long_options, &index);
 		if (c == -1) {
 			break;
 		}
@@ -84,6 +88,10 @@ int parse_arguments(struct options *opts, int argc, char * const argv[])
 		switch (c) {
 		case 'f':
 			opts->file = optarg;
+			break;
+
+		case 'x':
+			opts->extract = 1;
 			break;
 
 		case 'V':
@@ -147,6 +155,43 @@ int main(int argc, char * const argv[])
 		}
 	}
 
+	if (options.extract) {
+		for (;;) {
+			sqlite3_stmt *stmt;
+			const char *sql;
+
+			sql = "SELECT content FROM blobs WHERE file = ?";
+			if (sqlite3_prepare(db, sql, -1, &stmt, 0)) {
+				__sqlite3_perror("sqlite3_prepare", db);
+				goto exit;
+			}
+
+			if (sqlite3_bind_text(stmt, 1, argv[optind], -1,
+					      SQLITE_STATIC)) {
+				__sqlite3_perror("sqlite3_bind_text", db);
+				goto exit;
+			}
+
+			if (sqlite3_step(stmt) != SQLITE_ROW) {
+				__sqlite3_perror("sqlite3_step", db);
+				goto exit;
+			}
+
+			write(STDOUT_FILENO,
+			      sqlite3_column_blob(stmt, 0),
+			      sqlite3_column_bytes(stmt, 0));
+
+			if (sqlite3_finalize(stmt) == SQLITE_SCHEMA) {
+				__sqlite3_perror("sqlite3_step", db);
+				continue;
+			}
+
+			break;
+		}
+
+		ret = EXIT_SUCCESS;
+		goto exit;
+	}
 
 	for (;;) {
 		unsigned char blob[BUFSIZ];
