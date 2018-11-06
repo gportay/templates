@@ -71,7 +71,7 @@ int parse_arguments(struct options *opts, int argc, char * const argv[])
 {
 	static const struct option long_options[] = {
 		{ "file",    required_argument, NULL, 'f' },
-		{ "extract", required_argument, NULL, 'x' },
+		{ "extract", no_argument,       NULL, 'x' },
 		{ "version", no_argument,       NULL, 'V' },
 		{ "help",    no_argument,       NULL, 'h' },
 		{ NULL,      no_argument,       NULL, 0   }
