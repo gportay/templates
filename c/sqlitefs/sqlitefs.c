@@ -1,8 +1,9 @@
 /*
  *  Copyright (C) 2018 Savoir-Faire Linux Inc.
+ *                2018 Gaël PORTAY
  *
  *  Authors:
- *       Gaël PORTAY <gael.portay@savoirfairelinux.com>
+ *       Gaël PORTAY <gael.portay@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -37,6 +38,20 @@ const char VERSION[] = __DATE__ " " __TIME__;
 
 #include <fuse.h>
 #include <sqlite3.h>
+
+#include "hexdump.h"
+
+#define __min(a,b) ({ \
+	__typeof__ (a) _a = (a); \
+	__typeof__ (b) _b = (b); \
+	_a < _b ? _a : _b; \
+})
+
+#define __data(s) s, sizeof(s) - 1
+
+#define __sqlite3_perror(s, db) do { \
+	fprintf(stderr, "%s: %s\n", s, sqlite3_errmsg(db)); \
+} while (0)
 
 static const char *mode(mode_t mode)
 {
@@ -197,7 +212,55 @@ static int readdir_cb(void *data, int argc, char **argv, char **colname)
 }
 
 static int add_file(sqlite3 *db, const char *file, const char *parent,
-		    const struct stat *st)
+		    void *data, size_t datasize, const struct stat *st)
+{
+	char sql[BUFSIZ];
+
+	snprintf(sql, sizeof(sql), "INSERT OR REPLACE INTO files(path, parent, "
+		 "data, st_dev, st_ino, st_mode, st_nlink, st_uid, st_gid, "
+		 "st_rdev, st_size, st_blksize, st_blocks, st_atim_sec, "
+		 "st_atim_nsec, st_mtim_sec, st_mtim_nsec, st_ctim_sec, "
+		 "st_ctim_nsec) "
+		 "VALUES(\"%s\", \"%s\", ?, %lu, %lu, %u, %lu, %u, %u, %lu, "
+		 "%lu, %lu, %lu, %lu, %lu, %lu, %lu, %lu, %lu);",
+		 file, parent, st->st_dev, st->st_ino, st->st_mode,
+		 st->st_nlink, st->st_uid, st->st_gid, st->st_rdev, st->st_size,
+		 st->st_blksize, st->st_blocks, st->st_atim.tv_sec,
+		 st->st_atim.tv_nsec, st->st_mtim.tv_sec, st->st_mtim.tv_nsec,
+		 st->st_ctim.tv_sec, st->st_ctim.tv_nsec);
+
+	for (;;) {
+		sqlite3_stmt *stmt;
+
+		if (sqlite3_prepare(db, sql, -1, &stmt, 0) != SQLITE_OK) {
+			__sqlite3_perror("sqlite3_prepare", db);
+			goto exit;
+		}
+
+		if (sqlite3_bind_blob(stmt, 1, data, datasize, SQLITE_STATIC)) {
+			__sqlite3_perror("sqlite3_bind_blob", db);
+			goto exit;
+		}
+
+		if (sqlite3_step(stmt) != SQLITE_DONE) {
+			__sqlite3_perror("sqlite3_step", db);
+			goto exit;
+		}
+
+		if (sqlite3_finalize(stmt) == SQLITE_SCHEMA) {
+			__sqlite3_perror("sqlite3_step", db);
+			continue;
+		}
+
+		break;
+	}
+
+exit:
+	return 0;
+}
+
+static int add_directory(sqlite3 *db, const char *file, const char *parent,
+			 const struct stat *st)
 {
 	char sql[BUFSIZ];
 	char *e;
@@ -280,6 +343,76 @@ static int sqlitefs_getattr(const char *path, struct stat *st)
 	fprintstat(stderr, path, st);
 
 	return 0;
+}
+
+/** Read data from an open file
+ *
+ * Read should return exactly the number of bytes requested except
+ * on EOF or error, otherwise the rest of the data will be
+ * substituted with zeroes.	 An exception to this is when the
+ * 'direct_io' mount option is specified, in which case the return
+ * value of the read system call will reflect the return value of
+ * this operation.
+ *
+ * Changed in version 2.2
+ */
+int sqlitefs_read(const char *path, char *buf, size_t bufsize, off_t offset,
+	     struct fuse_file_info *fi)
+{
+	sqlite3 *db = fuse_get_context()->private_data;
+	char sql[BUFSIZ];
+	int size = 0;
+	(void)bufsize;
+	(void)fi;
+
+	if (!db) {
+		fprintf(stderr, "%s: Invalid context\n", __FUNCTION__);
+		errno = EINVAL;
+		return -1;
+	}
+
+	snprintf(sql, sizeof(sql),
+		 "SELECT data FROM files WHERE (path == \"%s\");", path);
+
+	for (;;) {
+		const unsigned char *data;
+		sqlite3_stmt *stmt;
+		int datasize;
+
+		if (sqlite3_prepare(db, sql, -1, &stmt, 0)) {
+			__sqlite3_perror("sqlite3_prepare", db);
+			goto exit;
+		}
+
+		if (sqlite3_step(stmt) != SQLITE_ROW) {
+			__sqlite3_perror("sqlite3_step", db);
+			goto exit;
+		}
+
+		data = sqlite3_column_blob(stmt, 0);
+		datasize = sqlite3_column_bytes(stmt, 0);
+		size = datasize - offset;
+
+		if (size < 0) {
+			size = 0;
+			buf[0] = 0;
+		} else {
+			size = __min((size_t)size, bufsize);
+			memcpy(buf, &data[offset], size);
+		}
+
+		if (sqlite3_finalize(stmt) == SQLITE_SCHEMA) {
+			__sqlite3_perror("sqlite3_step", db);
+			continue;
+		}
+
+		break;
+	}
+
+	fhexdump(stderr, offset, buf, size);
+
+exit:
+	return size;
 }
 
 /** Read directory
@@ -373,6 +506,7 @@ static void *sqlitefs_init(struct fuse_conn_info *conn)
 		       "CREATE TABLE IF NOT EXISTS files("
 				"path TEXT NOT NULL PRIMARY KEY, "
 				"parent TEXT NOT NULL, "
+				"data BLOB, "
 				"st_dev INT(8), "
 				"st_ino INT(8), "
 				"st_mode INT(4), "
@@ -408,12 +542,12 @@ static void *sqlitefs_init(struct fuse_conn_info *conn)
 		st.st_mtime = time(NULL);
 		st.st_ctime = time(NULL);
 
-		if (add_file(db, "/", "/", &st)) {
+		if (add_directory(db, "/", "/", &st)) {
 			sqlite3_close(db);
 			return NULL;
 		}
 
-		if (add_file(db, "/.Trash", "/", &st)) {
+		if (add_directory(db, "/.Trash", "/", &st)) {
 			sqlite3_close(db);
 			return NULL;
 		}
@@ -421,7 +555,8 @@ static void *sqlitefs_init(struct fuse_conn_info *conn)
 		st.st_mode = S_IFREG | 0644;
 		st.st_nlink = 1;
 		st.st_size = 1024;
-		if (add_file(db, "/autorun.inf", "/", &st)) {
+		if (add_file(db, "/autorun.inf", "/",
+			     __data("[autorun]\nlabel=sqlitefs\n"), &st)) {
 			sqlite3_close(db);
 			return NULL;
 		}

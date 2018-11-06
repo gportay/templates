@@ -1,8 +1,9 @@
 #
 #  Copyright (C) 2018 Savoir-Faire Linux Inc.
+#                2018 Gaël PORTAY
 #
 #  Authors:
-#      Gaël PORTAY <gael.portay@savoirfairelinux.com>
+#      Gaël PORTAY <gael.portay@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -29,6 +30,7 @@ mountpoint:
 
 .PHONY: tests
 tests: sqlitefs | mountpoint
+	@echo "Note: You can run \$ cat mountpoint/autorun.ini"
 	./sqlitefs -f mountpoint
 
 .PHONY: clean
