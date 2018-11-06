@@ -61,7 +61,7 @@ void usage(FILE * f, char * const arg0)
 		   "\n"
 		   "Options:\n"
 		   " -f or --file FILE     Set the path to database.\n"
-		   " -x or --extract       Extract file from an database.\n"
+		   " -x or --extract       Extract file from a database.\n"
 		   " -h or --help          Display this message.\n"
 		   " -V or --version       Display the version.\n"
 		   "", applet(arg0));

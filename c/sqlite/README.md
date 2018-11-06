@@ -19,7 +19,7 @@ restore individual files from the database.
 	Set the path to database.
 
 **-x or --extract**
-	Extract file from an database.
+	Extract file from a database.
 
 **-h or --help**
 	Display this message.
