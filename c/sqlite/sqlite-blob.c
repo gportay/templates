@@ -80,7 +80,7 @@ int parse_arguments(struct options *opts, int argc, char * const argv[])
 	opterr = 0;
 	for (;;) {
 		int index;
-		int c = getopt_long(argc, argv, "d:xVh", long_options, &index);
+		int c = getopt_long(argc, argv, "f:xVh", long_options, &index);
 		if (c == -1) {
 			break;
 		}
