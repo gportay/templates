@@ -27,10 +27,6 @@ restore individual files from the database.
 **-V or --version**
 	Display the version.
 
-## EXIT STATUS
-
-Exits success if timer is reached; exits failure otherwise.
-
 ## AUTHOR
 
 Written by Gaël PORTAY *gael.portay@gmail.com*
