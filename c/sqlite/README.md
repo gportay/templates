@@ -19,7 +19,7 @@ restore individual files from the database.
 	Set the path to database.
 
 **-x or --extract**
-	Extract file from an database.
+	Extract file from a database.
 
 **-h or --help**
 	Display this message.
@@ -27,17 +27,13 @@ restore individual files from the database.
 **-V or --version**
 	Display the version.
 
-## EXIT STATUS
-
-Exits success if timer is reached; exits failure otherwise.
-
 ## AUTHOR
 
 Written by Gaël PORTAY *gael.portay@gmail.com*
 
 ## COPYRIGHT
 
-Copyright (C) 2018 Gaël PORTAY.
+Copyright (C) 2018 Gaël PORTAY
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free

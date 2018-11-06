@@ -61,7 +61,7 @@ void usage(FILE * f, char * const arg0)
 		   "\n"
 		   "Options:\n"
 		   " -f or --file FILE     Set the path to database.\n"
-		   " -x or --extract       Extract file from an database.\n"
+		   " -x or --extract       Extract file from a database.\n"
 		   " -h or --help          Display this message.\n"
 		   " -V or --version       Display the version.\n"
 		   "", applet(arg0));
@@ -71,7 +71,7 @@ int parse_arguments(struct options *opts, int argc, char * const argv[])
 {
 	static const struct option long_options[] = {
 		{ "file",    required_argument, NULL, 'f' },
-		{ "extract", required_argument, NULL, 'x' },
+		{ "extract", no_argument,       NULL, 'x' },
 		{ "version", no_argument,       NULL, 'V' },
 		{ "help",    no_argument,       NULL, 'h' },
 		{ NULL,      no_argument,       NULL, 0   }
@@ -80,7 +80,7 @@ int parse_arguments(struct options *opts, int argc, char * const argv[])
 	opterr = 0;
 	for (;;) {
 		int index;
-		int c = getopt_long(argc, argv, "d:xVh", long_options, &index);
+		int c = getopt_long(argc, argv, "f:xVh", long_options, &index);
 		if (c == -1) {
 			break;
 		}
