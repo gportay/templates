@@ -36,6 +36,8 @@ ascii
 
 [ini](c/parser/ini/README.md) - simple C ini parser without context
 
+[dlrun](c/ld/README.md) - example of how to use dl library
+
 [line](c/parser/line/README.md) - simple C line parser without context
 
 [mime-types](c/regex/README.md) - example of how to use regex API
