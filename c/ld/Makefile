@@ -19,7 +19,7 @@ override CFLAGS += -g -Wall -Wextra -Werror
 
 .PHONY: all
 all: dlrun library.so
-	LD_LIBRARY_PATH="." PATH=".:$$PATH" dlrun entrypoint library.so
+	LD_LIBRARY_PATH="." PATH=".:$$PATH" dlrun entrypoint library.so one two three
 
 dlrun: override LDFLAGS += -ldl
 

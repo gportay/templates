@@ -23,7 +23,15 @@ static const char VERSION[] = __DATE__ " " __TIME__;
 
 #include <stdio.h>
 
-void entrypoint()
+int entrypoint(int argc, char * const argv[])
 {
+	int i;
+
+	printf("argc: %i\n", argc);
+	for (i = 0; i < argc; i++)
+		printf("argv[%i]: %s\n", i, argv[i]);
+
 	printf("%s\n", VERSION);
+
+	return 0;
 }

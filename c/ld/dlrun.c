@@ -43,7 +43,7 @@ static inline const char *applet(const char *arg0)
 
 void usage(FILE * f, char * const arg0)
 {
-	fprintf(f, "Usage: %s [OPTIONS] SYMBOL LIBRARY\n"
+	fprintf(f, "Usage: %s [OPTIONS] SYMBOL LIBRARY [--] [ARGS...]\n"
 		   "\n"
 		   "Run a symbol in a shared object or executable.\n"
 		   "\n"
@@ -96,7 +96,7 @@ int main(int argc, char * const argv[])
 	static struct options options;
 	void *hdl = NULL;
 	int argi, ret = EXIT_FAILURE;
-	void (*sym)(void) = NULL;
+	int (*sym)(int argc, char * const argv[]) = NULL;
 
 	argi = parse_arguments(&options, argc, argv);
 	if (argi < 0) {
@@ -120,7 +120,7 @@ int main(int argc, char * const argv[])
 		goto exit;
 	}
 
-	sym();
+	sym(argc - argi - 1, &argv[argi+1]);
 
 	ret = EXIT_SUCCESS;
 exit:
