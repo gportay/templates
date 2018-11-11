@@ -21,6 +21,7 @@
 static const char VERSION[] = __DATE__ " " __TIME__;
 #endif /* HAVE_CONFIG_H */
 
+#include <unistd.h>
 #include <stdio.h>
 
 int entrypoint(int argc, char * const argv[])
@@ -31,7 +32,11 @@ int entrypoint(int argc, char * const argv[])
 	for (i = 0; i < argc; i++)
 		printf("argv[%i]: %s\n", i, argv[i]);
 
-	printf("%s\n", VERSION);
-
 	return 0;
+}
+
+void version()
+{
+	printf("%s\n", VERSION);
+	_exit(0);
 }

@@ -20,8 +20,13 @@ override CFLAGS += -g -Wall -Wextra -Werror
 .PHONY: all
 all: dlrun library.so
 	LD_LIBRARY_PATH="." PATH=".:$$PATH" dlrun entrypoint library.so one two three
+	./library.so
 
 dlrun: override LDFLAGS += -ldl
+library.so: override LDFLAGS += -Wl,-pie -Wl,-E
+
+# Set entrypoint to version() without using the standard system startup files
+library.so: override LDFLAGS += -nostartfiles -Wl,-e,version
 
 .PHONY: clean
 clean:
