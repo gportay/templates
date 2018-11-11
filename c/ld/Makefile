@@ -25,8 +25,11 @@ all: dlrun library.so
 dlrun: override LDFLAGS += -ldl
 library.so: override LDFLAGS += -Wl,-pie -Wl,-E
 
-# Set entrypoint to version() without using the standard system startup files
-library.so: override LDFLAGS += -nostartfiles -Wl,-e,version
+#library.c:38:6: error: return type of ‘main’ is not ‘int’ [-Werror=main]
+# void main()
+#      ^~~~
+#cc1: all warnings being treated as errors
+library.o: override CFLAGS += -Wno-main
 
 .PHONY: clean
 clean:
