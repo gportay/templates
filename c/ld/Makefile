@@ -20,16 +20,10 @@ override CFLAGS += -g -Wall -Wextra -Werror
 .PHONY: all
 all: dlrun library.so
 	LD_LIBRARY_PATH="." PATH=".:$$PATH" dlrun entrypoint library.so one two three
-	./library.so
+	./library.so 1 2 3
 
 dlrun: override LDFLAGS += -ldl
 library.so: override LDFLAGS += -Wl,-pie -Wl,-E
-
-#library.c:38:6: error: return type of ‘main’ is not ‘int’ [-Werror=main]
-# void main()
-#      ^~~~
-#cc1: all warnings being treated as errors
-library.o: override CFLAGS += -Wno-main
 
 .PHONY: clean
 clean:

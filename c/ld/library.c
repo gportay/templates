@@ -35,8 +35,8 @@ int entrypoint(int argc, char * const argv[])
 	return 0;
 }
 
-void main()
+int main(int argc, char * const argv[])
 {
 	printf("%s\n", VERSION);
-	_exit(0);
+	return entrypoint(argc, argv);
 }
