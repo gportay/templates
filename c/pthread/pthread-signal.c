@@ -49,8 +49,15 @@ static int main_thread(int argc, char * const argv[])
 {
 	int sig, ret = EXIT_FAILURE;
 	static sigset_t sigset;
-	(void)argc;
-	(void)argv;
+
+	if (VERBOSE) {
+		int i;
+		verbose("Thread has %i argument%c:", argc,
+			argc == 0 ? ' ' : 's');
+		for (i = 0; i < argc; i++)
+			verbose(" \"%s\"", argv[i]);
+		verbose("\n");
+	}
 
 	if (sigemptyset(&sigset) == -1) {
 		perror("sigemptyset");
