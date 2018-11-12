@@ -112,6 +112,7 @@ static int main_thread(int argc, char * const argv[])
 struct options {
 	int argc;
 	char * const *argv;
+	struct timespec timeout;
 };
 
 static inline const char *applet(const char *arg0)
@@ -133,6 +134,7 @@ void usage(FILE * f, char * const arg0)
 		   "as SIGTERM, SIGUSR1, SIGUSR2 to another thread.\n"
 		   "\n"
 		   "Options:\n"
+		   " -t or --timeout SEC   Set timeout in sec [default=5].\n"
 		   " -v or --verbose       Turn on verbose messages.\n"
 		   " -D or --debug         Turn on debug messages.\n"
 		   " -h or --help          Display this message.\n"
@@ -150,6 +152,7 @@ void usage(FILE * f, char * const arg0)
 int parse_arguments(struct options *opts, int argc, char * const argv[])
 {
 	static const struct option long_options[] = {
+		{ "timeout", required_argument, NULL, 't' },
 		{ "verbose", no_argument,       NULL, 'v' },
 		{ "debug",   no_argument,       NULL, 'D' },
 		{ "version", no_argument,       NULL, 'V' },
@@ -160,14 +163,27 @@ int parse_arguments(struct options *opts, int argc, char * const argv[])
 	opterr = 0;
 	opts->argc = 0;
 	opts->argv = NULL;
+	opts->timeout.tv_sec = 5;
 	for (;;) {
 		int index;
-		int c = getopt_long(argc, argv, "vDVh", long_options, &index);
+		int c = getopt_long(argc, argv, "t:vDVh", long_options, &index);
 		if (c == -1) {
 			break;
 		}
 
 		switch (c) {
+		case 't': {
+			char *e;
+			long l = strtol(optarg, &e, 0);
+			if (*e) {
+				fprintf(stderr, "Error: %s: Invalid value!\n",
+					optarg);
+				exit(EXIT_FAILURE);
+			}
+			opts->timeout.tv_sec = l;
+			break;
+		}
+
 		case 'v':
 			VERBOSE++;
 			break;
@@ -275,16 +291,16 @@ int main(int argc, char * const argv[])
 
 	for (;;) {
 		siginfo_t siginfo;
-		sig = sigwaitinfo(&sigset, &siginfo);
+		sig = sigtimedwait(&sigset, &siginfo, &options.timeout);
 		if (sig == -1) {
 			if (errno == EINTR || errno == EAGAIN)
 				continue;
 
-			perror("sigwaitinfo");
+			perror("sigtimedwait");
 			break;
 		}
 
-		debug("sigwaitinfo(): %i: %s\n", sig, strsignal(sig));
+		debug("sigtimedwait(): %i: %s\n", sig, strsignal(sig));
 
 		if (sig == SIGINT) {
 			verbose("[%i] Cancelling thread...\n", gettid());
