@@ -44,6 +44,9 @@ ascii
 
 [pexec](c/pipe/README.md) - execute file in an interprocess channel
 
+[pthread-signal](c/pthread/README.md) - example of how to use pthreads and
+signals
+
 [publisher,epoll-publisher,subscriber](c/zmq/README.md) - simple ZMQ publisher
 and subscriber applets
 
