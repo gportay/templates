@@ -15,6 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * cc -pie -fPIC -Wl,-E library.c -shared -pie -o library.so
+ */
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #else
@@ -22,6 +26,7 @@ static const char VERSION[] = __DATE__ " " __TIME__;
 #endif /* HAVE_CONFIG_H */
 
 #include <unistd.h>
+#include <stdlib.h>
 #include <stdio.h>
 
 int entrypoint(int argc, char * const argv[])

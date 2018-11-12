@@ -22,8 +22,16 @@ all: pthread-signal
 
 pthread-signal: override CFLAGS += -pthread
 
-.PHONY: tests
-tests: export override PATH := .:$(PATH)
+.PHONY: run
+tests run: export override PATH := .:$(PATH)
+run:
+
+.PHONY: run tests
+run tests: export override PATH := .:$(PATH)
+
+run: pthread-signal
+	pthread-signal -v one two three
+
 tests: pthread-signal
 	pthread-signal -v one two three & sleep 1; kill -INT "$$!" && wait "$$!"
 	pthread-signal -v one two three & sleep 1; kill -USR1 "$$!" && sleep 1 && kill -USR2 "$$!" && sleep 1 && kill "$$!" && wait "$$!"

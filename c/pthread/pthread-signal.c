@@ -33,6 +33,7 @@ const char VERSION[] = __DATE__ " " __TIME__;
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/syscall.h>
+#include <fcntl.h>
 #include <pthread.h>
 
 static int VERBOSE = 0;
@@ -47,7 +48,7 @@ static inline pid_t gettid()
 
 static int main_thread(int argc, char * const argv[])
 {
-	int sig, ret = EXIT_FAILURE;
+	int sig, flags, ret = EXIT_FAILURE;
 	static sigset_t sigset;
 
 	if (VERBOSE) {
@@ -82,8 +83,36 @@ static int main_thread(int argc, char * const argv[])
 		return EXIT_FAILURE;
 	}
 
+	sig = SIGIO;
+	if (sigaddset(&sigset, sig) == -1) {
+		perror("sigaddset");
+		return EXIT_FAILURE;
+	}
+
 	if (pthread_sigmask(SIG_SETMASK, &sigset, NULL) == -1) {
 		perror("pthread_sigmask");
+		return EXIT_FAILURE;
+	}
+
+	if (fcntl(STDIN_FILENO, F_SETSIG, SIGIO) == -1) {
+		perror("fcntl");
+		return EXIT_FAILURE;
+	}
+
+	if (fcntl(STDIN_FILENO, F_SETOWN, getpid()) == -1) {
+		perror("fcntl");
+		return EXIT_FAILURE;
+	}
+
+	flags = fcntl(STDIN_FILENO, F_GETFL);
+	if (flags == -1) {
+		perror("fcntl");
+		return EXIT_FAILURE;
+	}
+
+	flags |= (O_ASYNC | O_NONBLOCK | O_CLOEXEC);
+	if (fcntl(STDIN_FILENO, F_SETFL, flags) == -1) {
+		perror("fcntl");
 		return EXIT_FAILURE;
 	}
 
@@ -105,8 +134,39 @@ static int main_thread(int argc, char * const argv[])
 			break;
 		}
 
-		if ((sig == SIGUSR1) || (sig == SIGUSR2))
+		if (sig == SIGUSR1) {
+			printf("Cancel itself!\n");
+			pthread_cancel(pthread_self());
 			continue;
+		}
+
+		if (sig == SIGUSR2) {
+			static int retval = 128 + SIGUSR2;
+			printf("Exit %i itself!\n", retval);
+			pthread_exit(&retval);
+			continue;
+		}
+
+		if (sig == SIGIO) {
+			for (;;) {
+				char buf[BUFSIZ];
+				ssize_t size;
+
+				size = read(STDIN_FILENO, buf, sizeof(buf));
+				if (size == -1) {
+					perror("read");
+					break;
+				} else if (!size) {
+					ret = EXIT_SUCCESS;
+					break;
+				}
+				buf[size] = '\0';
+
+				printf("%s", buf);
+			}
+
+			continue;
+		}
 
 		fprintf(stderr, "%s: Uncaught signal!\n", strsignal(sig));
 		break;
@@ -157,8 +217,10 @@ void usage(FILE * f, char * const arg0)
 		   "SIGINT                 Cancel thread.\n"
 		   "SIGTERM                Signal thread using Terminate to\n"
 		   "                       cause thread to exit.\n"
-		   "SIGUSR1                Signal thread using User signal 1.\n"
-		   "SIGUSR2                Signal thread using User signal 2.\n"
+		   "SIGUSR1                Signal thread using User signal 1\n"
+		   "                       to cause thread to cancel itself.\n"
+		   "SIGUSR2                Signal thread using User signal 2\n"
+		   "                       to cause thread to exit itself.\n"
 		   "", applet(arg0));
 }
 
@@ -328,7 +390,7 @@ int main(int argc, char * const argv[])
 
 		if ((sig == SIGTERM) || (sig == SIGUSR1) || (sig == SIGUSR2)) {
 			verbose("[%i] Signaling thread using %i (%s)...\n",
-			      gettid(), sig, strsignal(sig));
+			        gettid(), sig, strsignal(sig));
 			if (pthread_kill(t, sig)) {
 				perror("pthread_kill");
 				break;

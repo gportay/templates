@@ -15,6 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define _GNU_SOURCE
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #else
@@ -30,6 +32,9 @@ const char VERSION[] = __DATE__ " " __TIME__;
 struct options {
 	int argc;
 	char * const *argv;
+#ifdef _GNU_SOURCE
+	const char *symbol_version;
+#endif
 };
 
 static inline const char *applet(const char *arg0)
@@ -48,6 +53,9 @@ void usage(FILE * f, char * const arg0)
 		   "Run a symbol in a shared object or executable.\n"
 		   "\n"
 		   "Options:\n"
+#ifdef _GNU_SOURCE
+		   " --symbol-version      Set symbol version.\n"
+#endif
 		   " -h or --help          Display this message.\n"
 		   " -V or --version       Display the version.\n"
 		   "", applet(arg0));
@@ -56,9 +64,12 @@ void usage(FILE * f, char * const arg0)
 int parse_arguments(struct options *opts, int argc, char * const argv[])
 {
 	static const struct option long_options[] = {
-		{ "version", no_argument,       NULL, 'V' },
-		{ "help",    no_argument,       NULL, 'h' },
-		{ NULL,      no_argument,       NULL, 0   }
+#ifdef _GNU_SOURCE
+		{ "symbol-version", required_argument, NULL,  1  },
+#endif
+		{ "version",        no_argument,       NULL, 'V' },
+		{ "help",           no_argument,       NULL, 'h' },
+		{ NULL,             no_argument,       NULL, 0   }
 	};
 
 	opterr = 0;
@@ -70,6 +81,12 @@ int parse_arguments(struct options *opts, int argc, char * const argv[])
 		}
 
 		switch (c) {
+#ifdef _GNU_SOURCE
+		case 1:
+			opts->symbol_version = optarg;
+			break;
+
+#endif
 		case 'V':
 			printf("%s\n", VERSION);
 			exit(EXIT_SUCCESS);
@@ -93,7 +110,11 @@ int parse_arguments(struct options *opts, int argc, char * const argv[])
 
 int main(int argc, char * const argv[])
 {
-	static struct options options;
+	static struct options options = {
+#ifdef _GNU_SOURCE
+		.symbol_version = "",
+#endif
+	};
 	void *hdl = NULL;
 	int argi, ret = EXIT_FAILURE;
 	int (*sym)(int argc, char * const argv[]) = NULL;
@@ -108,25 +129,43 @@ int main(int argc, char * const argv[])
 		exit(EXIT_FAILURE);
 	}
 
+	fprintf(stderr, "Opening library %s... ", argv[argi+1]);
 	hdl = dlopen(argv[argi+1], RTLD_LAZY);
 	if (!hdl) {
 		fprintf(stderr, "%s\n", dlerror());
 		goto exit;
 	}
+	fprintf(stderr, "done\n");
 
+	fprintf(stderr, "Getting symbol %s... ", argv[argi]);
+#ifdef _GNU_SOURCE
+	fprintf(stderr, "(%s) ", options.symbol_version);
+	char buf[BUFSIZ];
+	strcpy(buf, argv[argi]);
+	sym = dlvsym(hdl, buf, options.symbol_version);
+#else
 	sym = dlsym(hdl, argv[argi]);
+#endif
 	if (!sym) {
 		fprintf(stderr, "%s\n", dlerror());
 		goto exit;
 	}
+	fprintf(stderr, "done\n");
 
+fprintf(stderr, "argi: %i\n", argi);
+fprintf(stderr, "argc: %i\n", argc);
+//	fprintf(stderr, "Running symbol %s... ", argv[argi+1]);
 	sym(argc - argi - 1, &argv[argi+1]);
+//	fprintf(stderr, "done\n");
 
 	ret = EXIT_SUCCESS;
 exit:
 	if (hdl) {
+		fprintf(stderr, "Closing library %s... ", argv[argi]);
 		if (dlclose(hdl))
 			fprintf(stderr, "%s\n", dlerror());
+		else
+			fprintf(stderr, "done\n");
 		sym = NULL;
 	}
 

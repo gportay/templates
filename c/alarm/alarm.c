@@ -184,13 +184,13 @@ int main(int argc, char * const argv[])
 
 	if (sigemptyset(&sigset) == -1) {
 		perror("sigemptyset");
-		exit(EXIT_FAILURE);
+		return EXIT_FAILURE;
 	}
 
 	sig = SIGTERM;
 	if (sigaddset(&sigset, sig) == -1) {
 		perror("sigaddset");
-		exit(EXIT_FAILURE);
+		return EXIT_FAILURE;
 	}
 
 	sig = SIGUSR1;
@@ -208,12 +208,12 @@ int main(int argc, char * const argv[])
 	sig = SIGALRM;
 	if (sigaddset(&sigset, sig) == -1) {
 		perror("sigaddset");
-		exit(EXIT_FAILURE);
+		return EXIT_FAILURE;
 	}
 
 	if (sigprocmask(SIG_SETMASK, &sigset, NULL) == -1) {
 		perror("sigprocmask");
-		exit(EXIT_FAILURE);
+		return EXIT_FAILURE;
 	}
 
 	for (;;) {

@@ -110,8 +110,7 @@ int main(int argc, char * const argv[])
 
 	argi = parse_arguments(&options, argc, argv);
 	if (argi < 0) {
-		fprintf(stderr, "Error: %s: Invalid argument!\n",
-			argv[optind-1]);
+		fprintf(stderr, "Error: %s: Invalid option!\n", argv[optind-1]);
 		exit(EXIT_FAILURE);
 	} else if (argc - argi > 0) {
 		usage(stdout, argv[0]);
