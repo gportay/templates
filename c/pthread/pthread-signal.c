@@ -15,6 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define _GNU_SOURCE
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #else
@@ -135,6 +137,10 @@ void usage(FILE * f, char * const arg0)
 		   "\n"
 		   "Options:\n"
 		   " -t or --timeout SEC   Set timeout in sec [default=5].\n"
+#ifdef _GNU_SOURCE
+		   "                       Note: It is also used to wait for\n"
+		   "                       thread to join before returning.\n"
+#endif
 		   " -v or --verbose       Turn on verbose messages.\n"
 		   " -D or --debug         Turn on debug messages.\n"
 		   " -h or --help          Display this message.\n"
@@ -334,6 +340,26 @@ int main(int argc, char * const argv[])
 
 	if (sigprocmask(SIG_UNBLOCK, &sigset, NULL) == -1)
 		perror("sigprocmask");
+
+#ifdef _GNU_SOURCE
+	if (options.timeout.tv_sec > 0) {
+		struct timespec ts;
+		if (clock_gettime(CLOCK_REALTIME, &ts) == 0) {
+			verbose("[%i] Waiting thread to join (%lis)...\n",
+				gettid(), options.timeout.tv_sec);
+			ts.tv_sec += options.timeout.tv_sec;
+			if (pthread_timedjoin_np(t, &tret, &ts)) {
+				perror("pthread_timedjoin_np");
+				goto exit;
+			}
+			verbose("[%i] Thread joined!\n", gettid());
+		
+			ret = EXIT_SUCCESS;
+			goto exit;
+		}
+		perror("clock_gettime");
+	}
+#endif
 
 	verbose("[%i] Waiting thread to join...\n", gettid());
 	if (pthread_join(t, &tret)) {
