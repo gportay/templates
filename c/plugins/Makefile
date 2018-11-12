@@ -18,20 +18,24 @@
 override CFLAGS += -g -Wall -Wextra -Werror -pedantic
 
 .PHONY: all
-all: loader helloworld.so myplugin.so
+all: loader loader-mt helloworld.so myplugin.so
 
-loader: override LDFLAGS += -ldl
+loader loader-mt: override LDFLAGS += -ldl
+loader-mt: override CFLAGS += -pthread
 
-.PHONY: tests
-tests: export override PATH := .:$(PATH)
-tests: export LD_LIBRARY_PATH = .
+.PHONY: tests mt-tests
+tests mt-tests: export override PATH := .:$(PATH)
+tests mt-tests: export LD_LIBRARY_PATH = .
 
 tests: all
 	loader -v helloworld.so myplugin.so
 
+mt-tests: all
+	loader-mt -v helloworld.so myplugin.so
+
 .PHONY: clean
 clean:
-	rm -f loader *.so *.o
+	rm -f loader loader-mt *.so *.o
 
 %.so: override CFLAGS += -fPIC -I.
 %.so: override LDFLAGS += -shared
