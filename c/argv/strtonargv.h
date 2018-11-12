@@ -59,6 +59,12 @@ char **strtonargv(char *dest[], char *src, int *n)
 		str = s;
 	}
 
+	if (*str) {
+		i++;
+		if (arg)
+			*arg++ = str;
+	}
+
 	if (arg)
 		*arg = NULL;
 

@@ -30,6 +30,14 @@ tests: strtonargv
 	diff - <(printf "/usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only\n")
 	CFS=";" strtonargv --count "/usr/bin/dbus-daemon;--system;--address=systemd:;--nofork;--nopidfile;--systemd-activation;--syslog-only;" | \
 	diff - <(echo "7")
+	IFS=$$'\n' strtonargv "strtonargv(1) splits strings to a list of words." | \
+	diff - <(printf "strtonargv(1)\nsplits\nstrings\nto\na\nlist\nof\nwords.\n")
+	IFS=$$'\n' strtonargv --count "strtonargv(1) splits strings to a list of words." | \
+	diff - <(echo "8")
+	CFS=$$'\n' strtonargv "strtonargv(1) splits strings to a list of words." | \
+	diff - <(printf "strtonargv(1) splits strings to a list of words.\n")
+	CFS=$$'\n' strtonargv --count "strtonargv(1) splits strings to a list of words." | \
+	diff - <(echo "1")
 
 .PHONY: clean
 clean:
