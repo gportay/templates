@@ -29,6 +29,11 @@ const char VERSION[] = __DATE__ " " __TIME__;
 
 #include "plugin.h"
 
+static int VERBOSE = 0;
+static int DEBUG = 0;
+#define verbose(fmt, ...) if (VERBOSE) fprintf(stderr, fmt, ##__VA_ARGS__)
+#define debug(fmt, ...) if (DEBUG) fprintf(stderr, fmt, ##__VA_ARGS__)
+
 struct options {
 	int argc;
 	char * const *argv;
@@ -50,6 +55,8 @@ void usage(FILE * f, char * const arg0)
 		   "Run plugin entrypoints.\n"
 		   "\n"
 		   "Options:\n"
+		   " -v or --verbose       Turn on verbose messages.\n"
+		   " -D or --debug         Turn on debug messages.\n"
 		   " -h or --help          Display this message.\n"
 		   " -V or --version       Display the version.\n"
 		   "", applet(arg0));
@@ -58,6 +65,8 @@ void usage(FILE * f, char * const arg0)
 int parse_arguments(struct options *opts, int argc, char * const argv[])
 {
 	static const struct option long_options[] = {
+		{ "verbose", no_argument,       NULL, 'v' },
+		{ "debug",   no_argument,       NULL, 'D' },
 		{ "version", no_argument,       NULL, 'V' },
 		{ "help",    no_argument,       NULL, 'h' },
 		{ NULL,      no_argument,       NULL, 0   }
@@ -68,12 +77,20 @@ int parse_arguments(struct options *opts, int argc, char * const argv[])
 	opts->argv = NULL;
 	for (;;) {
 		int index;
-		int c = getopt_long(argc, argv, "Vh", long_options, &index);
+		int c = getopt_long(argc, argv, "vDVh", long_options, &index);
 		if (c == -1) {
 			break;
 		}
 
 		switch (c) {
+		case 'v':
+			VERBOSE++;
+			break;
+
+		case 'D':
+			DEBUG++;
+			break;
+
 		case 'V':
 			printf("%s\n", VERSION);
 			exit(EXIT_SUCCESS);
@@ -103,19 +120,25 @@ static int start_plugins(void *handlers[], int argc, char * const argv[])
 		struct plugin *sym;
 		void *hdl;
 
+		verbose("Opening library %s... ", argv[i]);
 		hdl = dlopen(argv[i], RTLD_LAZY);
 		if (!hdl) {
 			fprintf(stderr, "%s\n", dlerror());
 			goto exit;
 		}
+		verbose("done\n");
 
+		verbose("Getting plugin symbol... ");
 		sym = dlsym(hdl, "plugin");
 		if (!sym) {
 			fprintf(stderr, "%s\n", dlerror());
 			goto exit;
 		}
+		verbose("done\n");
 
+		verbose("Running plugin symbol... ");
 		sym->entrypoint(1, &argv[i]);
+		verbose("done\n");
 
 		handlers[i] = hdl;
 	}
@@ -129,7 +152,6 @@ exit:
 static void stop_plugins(void *handlers[], int argc, char * const argv[])
 {
 	int i;
-	(void)argv;
 
 	for (i = argc-1; i >= 0; i--) {
 		void *hdl = handlers[i];
@@ -137,8 +159,11 @@ static void stop_plugins(void *handlers[], int argc, char * const argv[])
 		if (!hdl)
 			continue;
 
+		verbose("Closing library %s... ", argv[i]);
 		if (dlclose(hdl))
 			fprintf(stderr, "%s\n", dlerror());
+		else
+			verbose("done\n");
 
 		handlers[i] = NULL;
 	}

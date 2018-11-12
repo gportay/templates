@@ -28,7 +28,7 @@ tests: export override PATH := .:$(PATH)
 tests: export LD_LIBRARY_PATH = .
 
 tests: all
-	loader helloworld.so
+	loader -v helloworld.so
 
 .PHONY: clean
 clean:
