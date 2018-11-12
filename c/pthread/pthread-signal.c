@@ -29,7 +29,19 @@ const char VERSION[] = __DATE__ " " __TIME__;
 #include <getopt.h>
 #include <signal.h>
 #include <sys/wait.h>
+#include <sys/types.h>
+#include <sys/syscall.h>
 #include <pthread.h>
+
+static int VERBOSE = 0;
+static int DEBUG = 0;
+#define verbose(fmt, ...) if (VERBOSE) fprintf(stderr, fmt, ##__VA_ARGS__)
+#define debug(fmt, ...) if (DEBUG) fprintf(stderr, fmt, ##__VA_ARGS__)
+
+static inline pid_t gettid()
+{
+	return syscall(SYS_gettid);
+}
 
 static int main_thread(int argc, char * const argv[])
 {
@@ -121,6 +133,8 @@ void usage(FILE * f, char * const arg0)
 		   "as SIGTERM, SIGUSR1, SIGUSR2 to another thread.\n"
 		   "\n"
 		   "Options:\n"
+		   " -v or --verbose       Turn on verbose messages.\n"
+		   " -D or --debug         Turn on debug messages.\n"
 		   " -h or --help          Display this message.\n"
 		   " -V or --version       Display the version.\n"
 		   "\n"
@@ -136,6 +150,8 @@ void usage(FILE * f, char * const arg0)
 int parse_arguments(struct options *opts, int argc, char * const argv[])
 {
 	static const struct option long_options[] = {
+		{ "verbose", no_argument,       NULL, 'v' },
+		{ "debug",   no_argument,       NULL, 'D' },
 		{ "version", no_argument,       NULL, 'V' },
 		{ "help",    no_argument,       NULL, 'h' },
 		{ NULL,      no_argument,       NULL, 0   }
@@ -146,12 +162,20 @@ int parse_arguments(struct options *opts, int argc, char * const argv[])
 	opts->argv = NULL;
 	for (;;) {
 		int index;
-		int c = getopt_long(argc, argv, "Vh", long_options, &index);
+		int c = getopt_long(argc, argv, "vDVh", long_options, &index);
 		if (c == -1) {
 			break;
 		}
 
 		switch (c) {
+		case 'v':
+			VERBOSE++;
+			break;
+
+		case 'D':
+			DEBUG++;
+			break;
+
 		case 'V':
 			printf("%s\n", VERSION);
 			exit(EXIT_SUCCESS);
@@ -178,7 +202,9 @@ static void *start(void *arg)
 	struct options *opts = (struct options *)arg;
 	static int retval;
 
+	verbose("[%i] Thread started!\n", gettid());
 	retval = main_thread(opts->argc, opts->argv);
+	verbose("[%i] Thread exited!\n", gettid());
 
 	return &retval;
 }
@@ -231,12 +257,14 @@ int main(int argc, char * const argv[])
 		return EXIT_FAILURE;
 	}
 
+	verbose("[%i] Creating thread...\n", gettid());
 	topts.argc = argc - argi;
 	topts.argv = &argv[argi];
 	if (pthread_create(&t, NULL, start, &topts)) {
 		perror("pthread_create");
 		goto exit;
 	}
+	verbose("[%i] Thread created!\n", gettid());
 
 	fprintf(stderr, "Kill me using using signals SIGINT (^C) or SIGTERM"
 			" or any of the two user defined signals SIGUSR1 or"
@@ -256,17 +284,27 @@ int main(int argc, char * const argv[])
 			break;
 		}
 
+		debug("sigwaitinfo(): %i: %s\n", sig, strsignal(sig));
+
 		if (sig == SIGINT) {
-			if (pthread_cancel(t))
+			verbose("[%i] Cancelling thread...\n", gettid());
+			if (pthread_cancel(t)) {
 				perror("pthread_cancel");
+				break;
+			}
+			verbose("[%i] Thread cancelled!\n", gettid());
+
 			break;
 		}
 
 		if ((sig == SIGTERM) || (sig == SIGUSR1) || (sig == SIGUSR2)) {
+			verbose("[%i] Signaling thread using %i (%s)...\n",
+			      gettid(), sig, strsignal(sig));
 			if (pthread_kill(t, sig)) {
 				perror("pthread_kill");
 				break;
 			}
+			verbose("[%i] Thread signaled!\n", gettid());
 
 			if (sig == SIGTERM)
 				break;
@@ -281,10 +319,12 @@ int main(int argc, char * const argv[])
 	if (sigprocmask(SIG_UNBLOCK, &sigset, NULL) == -1)
 		perror("sigprocmask");
 
+	verbose("[%i] Waiting thread to join...\n", gettid());
 	if (pthread_join(t, &tret)) {
 		perror("pthread_join");
 		goto exit;
 	}
+	verbose("[%i] Thread joined!\n", gettid());
 
 	ret = EXIT_SUCCESS;
 
