@@ -18,7 +18,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-file-browser: override CFLAGS+=-Wall -Wextra -Werror -g
-file-browser: override LDLIBS+=-lncurses
+file-browser: override CFLAGS+=-Wall -Wextra -g
+file-browser: override LDLIBS+=-lncurses -lmenu -lpanel
+file-browser: nconf.gui.o
+
+#override LDLIBS+=-lncurses -lmenu
+#
+#example-18 example-23:
+
+clean:
+	rm -f *.o
 
 # ex: filetype=make
