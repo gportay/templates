@@ -18,24 +18,24 @@
 override CFLAGS += -g -Wall -Wextra -Werror -pedantic
 
 .PHONY: all
-all: loader helloworld.so
+all: loader helloworld.so myplugin.so
 
 loader: override LDFLAGS += -ldl
-helloworld.so: plugin.h
 
 .PHONY: tests
 tests: export override PATH := .:$(PATH)
 tests: export LD_LIBRARY_PATH = .
 
 tests: all
-	loader -v helloworld.so
+	loader -v helloworld.so myplugin.so
 
 .PHONY: clean
 clean:
-	rm -f loader helloworld.so *.o
+	rm -f loader *.so *.o
 
 %.so: override CFLAGS += -fPIC -I.
 %.so: override LDFLAGS += -shared
+%.so: plugin.h
 %.so: %.o
 	$(LINK.o) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
