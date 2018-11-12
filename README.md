@@ -59,6 +59,8 @@ blob in sqlite
 [sqlitefs](c/sqlitefs/README.md) - example of how to use FUSE using in a SQLite
 database filesystem
 
+[strtonargv](c/argv/README.md) - convert a string to a list of arguments
+
 [uevent](c/parser/uevent/README.md) - simple C kobject/uevent parser without
 context
 
