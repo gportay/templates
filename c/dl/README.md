@@ -12,6 +12,8 @@
 
 **dlrun(1)** run a symbol in a shared object or executable.
 
+## OPTIONS
+
 **-h or --help**
 	Display this message.
 
