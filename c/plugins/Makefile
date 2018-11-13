@@ -28,10 +28,10 @@ tests mt-tests: export override PATH := .:$(PATH)
 tests mt-tests: export LD_LIBRARY_PATH = .
 
 tests: all
-	loader -v helloworld.so myplugin.so
+	loader -v helloworld.so "myplugin.so:one:two:three"
 
 mt-tests: all
-	loader-mt -v helloworld.so myplugin.so
+	loader-mt -v helloworld.so "myplugin.so:one:two:three"
 
 .PHONY: clean
 clean:

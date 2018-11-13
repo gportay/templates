@@ -31,6 +31,7 @@ const char VERSION[] = __DATE__ " " __TIME__;
 #include <pthread.h>
 
 #include "plugin.h"
+#include "strtonargv.h"
 
 static int VERBOSE = 0;
 static int DEBUG = 0;
@@ -43,8 +44,9 @@ static inline pid_t gettid()
 }
 
 struct plugin_data {
+	char buffer[BUFSIZ];
 	int argc;
-	char * const *argv;
+	char *argv[127];
 	void *handler;
 	pthread_t thread;
 	int retval;
@@ -146,12 +148,17 @@ static int start_plugins(struct plugin_data data[], int argc, char * const argv[
 {
 	int i, ret = EXIT_FAILURE;
 
+	CFS = ":";
 	for (i = 0; i < argc; i++) {
 		struct plugin *sym;
 		void *hdl;
 
-		verbose("Opening library %s... ", argv[i]);
-		hdl = dlopen(argv[i], RTLD_LAZY);
+		strncpy(data[i].buffer, argv[i], sizeof(data[i].buffer));
+		data[i].argc = 127;
+		strtonargv(data[i].argv, data[i].buffer, &data[i].argc);
+
+		verbose("Opening library %s... ", data[i].argv[0]);
+		hdl = dlopen(data[i].argv[0], RTLD_LAZY);
 		if (!hdl) {
 			fprintf(stderr, "%s\n", dlerror());
 			goto exit;
@@ -169,8 +176,6 @@ static int start_plugins(struct plugin_data data[], int argc, char * const argv[
 		verbose("Running plugin symbol... ");
 		data[i].handler = hdl;
 		data[i].plugin = sym;
-		data[i].argc = 0;
-		data[i].argv = &argv[i];
 		if (pthread_create(&data[i].thread, NULL, start_thread,
 				   &data[i])) {
 			perror("pthread_create");
@@ -188,6 +193,7 @@ exit:
 static void stop_plugins(struct plugin_data data[], int argc, char * const argv[])
 {
 	int i;
+	(void)argv;
 
 	for (i = argc-1; i >= 0; i--) {
 		void *retval, *hdl = data[i].handler;
@@ -212,7 +218,7 @@ static void stop_plugins(struct plugin_data data[], int argc, char * const argv[
 		else
 			fprintf(stderr, "Exited %i\n", *(int*)retval);
 
-		verbose("Closing library %s... ", argv[i]);
+		verbose("Closing library %s... ", data[i].argv[0]);
 		if (dlclose(hdl))
 			fprintf(stderr, "%s\n", dlerror());
 		else

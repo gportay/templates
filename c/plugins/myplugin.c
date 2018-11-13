@@ -22,8 +22,14 @@
 
 int myentrypoint(int argc, char * const argv[])
 {
-	printf("%s { argc: %i, argv[]: { %s, ...} }\n", __func__, argc, *argv);
+	int i;
 
+	printf("%s { argc: %i, argv[]: { %s", __func__, argc, *argv);
+	for (i = 1; i < argc; i++) {
+		printf(", %s", argv[i]);
+	}
+	printf(" } }\n");
+	
 	return sleep(1);
 }
 

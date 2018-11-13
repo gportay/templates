@@ -28,6 +28,7 @@ const char VERSION[] = __DATE__ " " __TIME__;
 #include <dlfcn.h>
 
 #include "plugin.h"
+#include "strtonargv.h"
 
 static int VERBOSE = 0;
 static int DEBUG = 0;
@@ -35,8 +36,9 @@ static int DEBUG = 0;
 #define debug(fmt, ...) if (DEBUG) fprintf(stderr, fmt, ##__VA_ARGS__)
 
 struct plugin_data {
+	char buffer[BUFSIZ];
 	int argc;
-	char * const *argv;
+	char *argv[127];
 	void *handler;
 	struct plugin *plugin;
 };
@@ -123,12 +125,17 @@ static int start_plugins(struct plugin_data data[], int argc, char * const argv[
 {
 	int i, ret = EXIT_FAILURE;
 
+	CFS = ":";
 	for (i = 0; i < argc; i++) {
 		struct plugin *sym;
 		void *hdl;
 
-		verbose("Opening library %s... ", argv[i]);
-		hdl = dlopen(argv[i], RTLD_LAZY);
+		strncpy(data[i].buffer, argv[i], sizeof(data[i].buffer));
+		data[i].argc = 127;
+		strtonargv(data[i].argv, data[i].buffer, &data[i].argc);
+
+		verbose("Opening library %s... ", data[i].argv[0]);
+		hdl = dlopen(data[i].argv[0], RTLD_LAZY);
 		if (!hdl) {
 			fprintf(stderr, "%s\n", dlerror());
 			goto exit;
@@ -144,8 +151,6 @@ static int start_plugins(struct plugin_data data[], int argc, char * const argv[
 		verbose("done\n");
 
 		verbose("Running plugin symbol... ");
-		data[i].argc = 1;
-		data[i].argv = &argv[i];
 		data[i].handler = hdl;
 		sym->entrypoint(data[i].argc, data[i].argv);
 		verbose("done\n");
@@ -160,6 +165,7 @@ exit:
 static void stop_plugins(struct plugin_data data[], int argc, char * const argv[])
 {
 	int i;
+	(void)argv;
 
 	for (i = argc-1; i >= 0; i--) {
 		void *hdl = data[i].handler;
@@ -167,7 +173,7 @@ static void stop_plugins(struct plugin_data data[], int argc, char * const argv[
 		if (!hdl)
 			continue;
 
-		verbose("Closing library %s... ", argv[i]);
+		verbose("Closing library %s... ", data[i].argv[0]);
 		if (dlclose(hdl))
 			fprintf(stderr, "%s\n", dlerror());
 		else
