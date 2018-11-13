@@ -34,6 +34,13 @@ static int DEBUG = 0;
 #define verbose(fmt, ...) if (VERBOSE) fprintf(stderr, fmt, ##__VA_ARGS__)
 #define debug(fmt, ...) if (DEBUG) fprintf(stderr, fmt, ##__VA_ARGS__)
 
+struct plugin_data {
+	int argc;
+	char * const *argv;
+	void *handler;
+	struct plugin *plugin;
+};
+
 struct options {
 	int argc;
 	char * const *argv;
@@ -112,7 +119,7 @@ int parse_arguments(struct options *opts, int argc, char * const argv[])
 	return optind;
 }
 
-static int start_plugins(void *handlers[], int argc, char * const argv[])
+static int start_plugins(struct plugin_data data[], int argc, char * const argv[])
 {
 	int i, ret = EXIT_FAILURE;
 
@@ -137,10 +144,11 @@ static int start_plugins(void *handlers[], int argc, char * const argv[])
 		verbose("done\n");
 
 		verbose("Running plugin symbol... ");
-		sym->entrypoint(1, &argv[i]);
+		data[i].argc = 1;
+		data[i].argv = &argv[i];
+		data[i].handler = hdl;
+		sym->entrypoint(data[i].argc, data[i].argv);
 		verbose("done\n");
-
-		handlers[i] = hdl;
 	}
 
 	ret = EXIT_SUCCESS;
@@ -149,12 +157,12 @@ exit:
 	return ret;
 }
 
-static void stop_plugins(void *handlers[], int argc, char * const argv[])
+static void stop_plugins(struct plugin_data data[], int argc, char * const argv[])
 {
 	int i;
 
 	for (i = argc-1; i >= 0; i--) {
-		void *hdl = handlers[i];
+		void *hdl = data[i].handler;
 
 		if (!hdl)
 			continue;
@@ -165,7 +173,7 @@ static void stop_plugins(void *handlers[], int argc, char * const argv[])
 		else
 			verbose("done\n");
 
-		handlers[i] = NULL;
+		data[i].handler = NULL;
 	}
 }
 
@@ -185,10 +193,10 @@ int main(int argc, char * const argv[])
 	}
 
 	if (argc - argi > 0) {
-		void *handlers[argc-argi];
-		memset(handlers, 0, sizeof(handlers));
+		struct plugin_data data[argc-argi];
+		memset(data, 0, sizeof(data));
 
-		if (start_plugins(handlers, argc-argi, &argv[argi]))
+		if (start_plugins(data, argc-argi, &argv[argi]))
 			goto exit;
 
 		/* main loop */
@@ -197,7 +205,7 @@ int main(int argc, char * const argv[])
 		ret = EXIT_SUCCESS;
 
 exit:
-		stop_plugins(handlers, argc-argi, &argv[argi]);
+		stop_plugins(data, argc-argi, &argv[argi]);
 	}
 
 	return ret;
