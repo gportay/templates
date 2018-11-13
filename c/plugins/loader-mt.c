@@ -26,6 +26,7 @@ const char VERSION[] = __DATE__ " " __TIME__;
 #include <stdlib.h>
 #include <string.h>
 #include <getopt.h>
+#include <signal.h>
 #include <sys/syscall.h>
 #include <dlfcn.h>
 #include <pthread.h>
@@ -49,9 +50,18 @@ struct plugin_data {
 	char *argv[127];
 	void *handler;
 	pthread_t thread;
+	int exited;
 	int retval;
 	struct plugin *plugin;
 };
+
+struct priv {
+	int plugins_count;
+	struct plugin_data *plugins_data;
+	pthread_t main_thread;
+};
+
+static struct priv PRIVATE;
 
 struct options {
 	int argc;
@@ -131,15 +141,41 @@ int parse_arguments(struct options *opts, int argc, char * const argv[])
 	return optind;
 }
 
+static void exit_handler(void *arg)
+{
+	int i;
+	(void)arg;
+
+	for (i = 0; i < PRIVATE.plugins_count; i ++)
+		if (!PRIVATE.plugins_data[i].exited)
+			return;
+
+	verbose("Raising %s!\n", strsignal(SIGTERM));
+	if (pthread_kill(PRIVATE.main_thread, SIGTERM))
+		perror("pthread_kill");
+}
+
+static void stop_handler(void *arg)
+{
+	struct plugin_data *data = (struct plugin_data *)arg;
+	data->exited = 1;
+}
+
 static void *start_thread(void *arg)
 {
 	struct plugin_data *data = (struct plugin_data *)arg;
+
+	pthread_cleanup_push(exit_handler, &PRIVATE);
+	pthread_cleanup_push(stop_handler, arg);
 
 	verbose("[%i] Thread started!\n", gettid());
 	if (data->plugin->entrypoint) {
 		data->retval = data->plugin->entrypoint(data->argc, data->argv);
 	}
 	verbose("[%i] Thread exited!\n", gettid());
+
+	pthread_cleanup_pop(1);
+	pthread_cleanup_pop(1);
 
 	return &data->retval;
 }
@@ -196,27 +232,33 @@ static void stop_plugins(struct plugin_data data[], int argc, char * const argv[
 	(void)argv;
 
 	for (i = argc-1; i >= 0; i--) {
-		void *retval, *hdl = data[i].handler;
+		void *hdl = data[i].handler;
 
 		if (!hdl)
 			continue;
 
-		verbose("[%i] Cancelling thread...\n", gettid());
-		if (pthread_cancel(data[i].thread))
-			perror("pthread_cancel");
-		else
-			verbose("[%i] Thread cancelled!\n", gettid());
+		if (!data[i].exited) {
+			void *retval;
 
-		verbose("[%i] Waiting thread to join...\n", gettid());
-		if (pthread_join(data[i].thread, &retval))
-			perror("pthread_join");
-		else
-			verbose("[%i] Thread joined!\n", gettid());
+			verbose("[%i] Cancelling thread...\n", gettid());
+			if (pthread_cancel(data[i].thread))
+				perror("pthread_cancel");
+			else
+				verbose("[%i] Thread cancelled!\n", gettid());
 
-		if (retval == PTHREAD_CANCELED)
+			verbose("[%i] Waiting thread to join...\n", gettid());
+			if (pthread_join(data[i].thread, &retval))
+				perror("pthread_join");
+			else
+				verbose("[%i] Thread joined!\n", gettid());
+
+			data[i].retval = *(int *)retval;
+		}
+
+		if ((void *)&data[i].retval == PTHREAD_CANCELED)
 			fprintf(stderr, "Cancelled\n");
 		else
-			fprintf(stderr, "Exited %i\n", *(int*)retval);
+			fprintf(stderr, "Exited %i\n", data[i].retval);
 
 		verbose("Closing library %s... ", data[i].argv[0]);
 		if (dlclose(hdl))
@@ -232,6 +274,7 @@ int main(int argc, char * const argv[])
 {
 	static struct options options;
 	int argi, ret = EXIT_FAILURE;
+	static sigset_t sigset;
 
 	argi = parse_arguments(&options, argc, argv);
 	if (argi < 0) {
@@ -245,14 +288,63 @@ int main(int argc, char * const argv[])
 
 	if (argc - argi > 0) {
 		struct plugin_data data[argc-argi];
+		int sig;
+
 		memset(data, 0, sizeof(data));
+		PRIVATE.plugins_count = argc-argi;
+		PRIVATE.plugins_data = data;
+		PRIVATE.main_thread = pthread_self();
+
+		if (sigemptyset(&sigset) == -1) {
+			perror("sigemptyset");
+			return EXIT_FAILURE;
+		}
+
+		sig = SIGTERM;
+		if (sigaddset(&sigset, sig) == -1) {
+			perror("sigaddset");
+			return EXIT_FAILURE;
+		}
+
+		sig = SIGINT;
+		if (sigaddset(&sigset, sig) == -1) {
+			perror("sigaddset");
+			return EXIT_FAILURE;
+		}
+
+		if (sigprocmask(SIG_SETMASK, &sigset, NULL) == -1) {
+			perror("sigprocmask");
+			return EXIT_FAILURE;
+		}
 
 		if (start_plugins(data, argc-argi, &argv[argi]))
 			goto exit;
 
 		/* main loop */
 		/* for (;;); */
-		sleep(1);
+		for (;;) {
+
+			siginfo_t siginfo;
+			sig = sigwaitinfo(&sigset, &siginfo);
+			if (sig == -1) {
+				if (errno == EINTR || errno == EAGAIN)
+					continue;
+
+				perror("sigwaitinfo");
+				break;
+			}
+
+			debug("sigwaitinfo(): %i: %s\n", sig, strsignal(sig));
+
+			if ((sig == SIGINT) || (sig == SIGTERM))
+				break;
+
+			fprintf(stderr, "%s: Uncaught signal!\n", strsignal(sig));
+			break;
+		}
+
+		if (sigprocmask(SIG_UNBLOCK, &sigset, NULL) == -1)
+			perror("sigprocmask");
 
 		ret = EXIT_SUCCESS;
 
