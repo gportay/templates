@@ -111,13 +111,18 @@ bash for bash
 
 [protodec-c.sed](sed/protodec-c/README.md) - decompile protobuf C header
 
+## SYSTEMD
+
+[echo](systemd/echo/README.md) - an example of an echo socket and service for
+systemd.
+
 ## AUTHOR
 
 Written by Gaël PORTAY *gael.portay@gmail.com*
 
 ## COPYRIGHT
 
-Copyright (c) 2015-2018 Gaël PORTAY
+Copyright (c) 2015-2019 Gaël PORTAY
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the MIT License.

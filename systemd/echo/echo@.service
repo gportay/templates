@@ -1,0 +1,6 @@
+[Unit]
+Description=Echo Service
+
+[Service]
+ExecStart=/bin/sh -c 'while read line; do echo "$line"; done'
+StandardInput=socket
