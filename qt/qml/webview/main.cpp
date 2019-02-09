@@ -9,7 +9,12 @@ int main(int argc, char *argv[])
 
     QGuiApplication app(argc, argv);
 
+    QCoreApplication::setApplicationName("WebView");
+    QCoreApplication::setApplicationVersion("1.0");
+
     QCommandLineParser parser;
+    parser.setApplicationDescription("A simple WebViewer based on Qt WebView.");
+    parser.addVersionOption();
     parser.addHelpOption();
     parser.process(app);
 
