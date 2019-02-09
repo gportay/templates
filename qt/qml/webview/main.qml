@@ -1,3 +1,9 @@
+/*
+ * Copyright 2019 Gaël PORTAY
+ *
+ * SPDX-License-Identifier: LGPL-2.1-or-later
+ */
+
 import QtQuick 2.8
 import QtQuick.Window 2.2
 import QtWebView 1.1

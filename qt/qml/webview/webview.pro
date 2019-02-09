@@ -1,3 +1,9 @@
+#
+# Copyright 2019 Gaël PORTAY
+#
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+
 QT += quick webview
 CONFIG += c++11
 
