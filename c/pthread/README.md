@@ -2,11 +2,11 @@
 
 ## NAME
 
-**pthread-signal**  - example of how to use pthreads and signals
+**pthread-signal** - example of how to use pthreads and signals
 
 ## SYNOPSIS
 
-**pthread-signal** - pthread-signal [OPTIONS] [THREAD_ARGS...]
+**pthread-signal** [OPTIONS] [THREAD_ARGS...]
 
 ## DESCRIPTION
 
