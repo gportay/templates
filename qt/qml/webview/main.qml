@@ -9,6 +9,7 @@ Window {
     title: webview.url
 
     WebView {
+        objectName: "webview"
         id: webview;
         anchors.fill: parent
         url: "https://www.github.com/gportay/templates"
