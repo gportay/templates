@@ -85,6 +85,10 @@ openssl RSA keys
 [foreach](makefile/foreach/README.md) - build a repository of archive using
 foreach function
 
+## QT/QML
+
+[webview](qt/qml/webview/README.md) - a simple WebViewer based on Qt WebView.
+
 ## SHELL/BASH
 
 [amount](shell/amount/README.md) - serial-disk auto-mounter
