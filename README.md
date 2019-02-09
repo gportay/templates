@@ -82,8 +82,8 @@ and subscriber applets using protobuf messages
 [openssl](openssl/genkeys/README.md) - provides implicit rules to generate
 openssl RSA keys
 
-[foreach](makefile/foreach/README.md) - build a repository of archive using
-foreach function
+[foreach](make/foreach/README.md) - build a repository of archive using foreach
+function
 
 ## QT/QML
 

@@ -1,1 +1,1 @@
-makefile/github/github-pages.mk
+make/github/github-pages.mk
