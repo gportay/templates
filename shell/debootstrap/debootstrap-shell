@@ -1,0 +1,119 @@
+#!/bin/bash
+#
+# Copyright 2019 Gaël PORTAY
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
+# Called as program loader (shebang #!/usr/bin/debootstrap-shell)
+__="${SUDO_COMMAND:-$_}"
+if [ "$__" != "/bin/bash" ] && [ "$__" = "$1" ]; then
+	exec <"$1"
+	shift
+	set -- -s "$@"
+	exec "$0" "$@"
+elif [ "$__" != "/bin/bash" ] && [ "$__" = "$2" ]; then
+	args="$1"
+	shift
+	exec <"$1"
+	shift
+	# shellcheck disable=SC2086
+	set -- $args -s "$@"
+	exec "$0" "$@"
+fi
+
+set -e
+
+declare -A DEBARCHS QEMUARCHS
+DEBARCHS[x86_64]="amd64"
+DEBARCHS[aarch64]="arm64"
+QEMUARCHS[amd64]="x86_64"
+QEMUARCHS[arm64]="aarch64"
+
+usage() {
+	cat <<EOF
+Usage: ${0##*/} [--arch arch] [-aCefnuvxIimqVEb] [+aCefnuvxIimqVEb] [-o option_name] [+o option_name] [command_file [argument ...]]
+
+       ${0##*/} [--arch arch] -c [-aCefnuvxIimqVEb] [+aCefnuvxIimqVEb] [-o option_name] [+o option_name] command_string [command_name [ argument ...]]
+
+       ${0##*/} [--arch arch] -s [-aCefnuvxIimqVEb] [+aCefnuvxIimqVEb] [-o option_name] [+o option_name] [argument ...]
+
+Runs on top of dash(1) in a chroot(1) build by debootstrap(1).
+
+For a more thorough description of dash(1), please refers to its help.
+
+Options:
+            --arch ARCH         Set architecture [${DEBARCHS[*]}].
+                                Defaults to host [$hostarch].
+                                Note: Given to debootstrap.
+      -C or --directory DIR     Change to directory before doing anything else.
+      -h or --help              Print usage.
+EOF
+}
+
+run_debootstrap() {
+	local opts
+	opts=()
+
+	# Needs emulation?
+	if [[ "$arch" != "$hostarch" ]]
+	then
+		local qemuarch
+		qemuarch="$arch"
+		qemuarch="${QEMUARCHS[$qemuarch]:-$qemuarch}"
+		if ! static_qemu="$(command -v "qemu-$qemuarch-static")"
+		then
+			echo "$qemuarch: No such emulator" >&2
+			exit 1
+		fi
+
+		mkdir -p "$2/usr/bin/"
+		cp "$static_qemu" "$2/usr/bin/"
+		opts+=( --arch "$arch" )
+	fi
+
+	# Create rootfs
+	debootstrap "${opts[@]}" "$@"
+}
+
+# Intercept -h option, and strip -C option
+hostarch="$(uname -m)"
+hostarch="${DEBARCHS[$hostarch]:$hostarch}"
+arch="$hostarch"
+directory="."
+opts=()
+while [[ "$#" -ne 0 ]]
+do
+	if [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]
+	then
+		usage
+		exit 0
+	elif [[ "$1" == "--arch" ]]
+	then
+		arch="$2"
+		shift
+	elif [[ "$1" == "-C" ]] || [[ "$1" == "--directory" ]]
+	then
+		directory="$2"
+		shift
+	else
+		opts+=("$1")
+	fi
+	shift
+done
+
+# Build debian rootfs
+if [[ ! -x "$directory/bin/dash" ]]
+then
+	run_debootstrap stable "$directory"
+fi
+
+# Resume second stage if necessary
+if [[ -x "$directory/debootstrap/debootstrap" ]]
+then
+	chroot "$directory" /debootstrap/debootstrap --second-stage
+fi
+
+# Run dash in a chroot
+set -- "${opts[@]}"
+exec chroot "$directory" /bin/dash -l "$@"

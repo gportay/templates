@@ -101,6 +101,9 @@ script in shell
 [deb-xtar](shell/deb/README.md) - restore files from nested data.tar.gz archive
 of a debian package
 
+[debootstrap-shell](shell/debootstrap/README.md) - command interpreter (shell)
+for debootstrap
+
 [docker-shell](docker/shell/README.md) - run a user shell in a new container
 with cwd bind mounted
 
