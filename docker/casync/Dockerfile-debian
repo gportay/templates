@@ -1,0 +1,34 @@
+FROM debian:stretch-backports
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get -y update && apt-get -y --no-install-recommends --target-release stretch-backports install build-essential
+RUN apt-get -y update && apt-get -y --no-install-recommends --target-release stretch-backports install \
+ cmake \
+ libacl1-dev \
+ libcurl4-openssl-dev \
+ libfuse-dev \
+ liblzma-dev \
+ libselinux-dev \
+ libssl-dev \
+ libudev-dev \
+ libz-dev \
+ libzstd-dev \
+ meson \
+ pkg-config \
+ udev \
+ python3-sphinx
+RUN apt-get -y update && apt-get -y --no-install-recommends --target-release stretch-backports install lighttpd
+
+ARG USER
+ARG UID
+RUN useradd --non-unique --uid $UID --shell /bin/bash $USER
+
+RUN apt-get -y update && apt-get -y --no-install-recommends --target-release stretch-backports install locales
+RUN sed -i 's/# \(en_US.UTF-8\)/\1/' /etc/locale.gen && \
+    /usr/sbin/locale-gen
+ENV LC_ALL=en_US.UTF-8
+ENV DEBIAN_FRONTEND=
+
+WORKDIR /var/www/lighttpd/
+EXPOSE 80
+CMD ["lighttpd", "-D", "-f", "/etc/lighttpd/lighttpd.conf"]

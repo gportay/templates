@@ -1,0 +1,27 @@
+FROM fedora:latest
+
+RUN dnf -y groupinstall \
+ "Development Tools" \
+ "C Development Tools and Libraries"
+RUN dnf -y install \
+ cmake \
+ curl-devel \
+ fuse-devel \
+ libacl-devel \
+ libselinux-devel \
+ libudev-devel \
+ libzstd-devel \
+ meson \
+ openssl-devel \
+ python3-sphinx \
+ xz-devel \
+ zlib-devel
+RUN dnf -y install lighttpd
+
+ARG USER
+ARG UID
+RUN useradd --non-unique --uid $UID --shell /bin/bash $USER
+
+WORKDIR /var/www/lighttpd/
+EXPOSE 80
+CMD ["lighttpd", "-D", "-f", "/etc/lighttpd/lighttpd.conf"]
