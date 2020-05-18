@@ -32,5 +32,9 @@ download:
 
 include runqemu.mk
 
-all: kernel initramfs.cpio
+all: kernel
+
+ifeq (,$(CONFIG_INITRAMFS_SOURCE))
+all: initramfs.cpio
+endif
 

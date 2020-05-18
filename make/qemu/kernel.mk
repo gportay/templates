@@ -22,6 +22,8 @@
 # THE SOFTWARE.
 #
 
+CONFIG_INITRAMFS_SOURCE ?=
+
 # Enable 64-bits support for x86 target
 ifeq (x86_64,$(shell uname -m))
 LINUX_CONFIGS	+= CONFIG_64BIT=y
@@ -47,6 +49,12 @@ bzImage: linux/arch/x86/boot/bzImage
 	cp $< $@
 
 .SILENT: linux/arch/x86/boot/bzImage
+linux/arch/x86/boot/bzImage:
+
+ifneq (,$(CONFIG_INITRAMFS_SOURCE))
+linux/arch/x86/boot/bzImage: initramfs.cpio
+endif
+
 linux/arch/x86/boot/bzImage: linux/.config
 	echo "Compiling linux ($(@F))..."
 	$(MAKE) -C linux $(@F)

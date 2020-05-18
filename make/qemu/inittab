@@ -1,6 +1,7 @@
 # /etc/inittab init(8) configuration for BusyBox
 #
 # Copyright (C) 1999-2004 by Erik Andersen <andersen@codepoet.org>
+#                    2017 by Gaël PORTAY <gael.portay@savoirfairelinux.com>
 #
 #
 # Note, BusyBox init doesn't support runlevels.  The runlevels field is
@@ -58,7 +59,8 @@
 #
 # Start an "askfirst" shell on the console (whatever that may be)
 ::askfirst:-/bin/sh
-# Start an "askfirst" shell on /dev/tty2-4
+# Start an "askfirst" shell on /dev/tty1-4
+tty1::askfirst:-/bin/sh
 tty2::askfirst:-/bin/sh
 tty3::askfirst:-/bin/sh
 tty4::askfirst:-/bin/sh

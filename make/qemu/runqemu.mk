@@ -41,8 +41,10 @@ runqemu:
 runqemu: KERNELFLAG=-kernel bzImage
 runqemu: bzImage
 
+ifeq (,$(CONFIG_INITRAMFS_SOURCE))
 runqemu: INITRDFLAG=-initrd initramfs.cpio
 runqemu: initramfs.cpio
+endif
 
 ifneq (,$(CMDLINE))
 runqemu: APPENDFLAG=-append "$(CMDLINE)"

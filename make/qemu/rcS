@@ -6,10 +6,21 @@
 #
 
 /bin/mount -t proc  proc  /proc
+/bin/mount -t sysfs sysfs /sys
 
-/bin/mknod -m 666 /dev/null c 1 3
-/bin/mknod -m 400 /dev/tty2 c 4 2
-/bin/mknod -m 400 /dev/tty3 c 4 3
-/bin/mknod -m 400 /dev/tty4 c 4 4
-/bin/mknod -m 400 /dev/tty5 c 4 5
-/bin/mknod -m 400 /dev/tty6 c 4 6
+if ! grep -q '^devtmpfs ' /proc/mounts && \
+   ! mount -t devtmpfs devtmps /dev; then
+	cat <<EOF >&2
+rcS: Warning: kernel has not been compiled with devtmpfs filesystem!
+     Check for CONFIG_DEVTMPFS and
+               CONFIG_DEVTMPFS_MOUNT.
+EOF
+	/bin/mount -t tmpfs tmpfs /dev
+	/bin/mknod -m 666 /dev/null c 1 3
+	/bin/mknod -m 400 /dev/tty1 c 4 1
+	/bin/mknod -m 400 /dev/tty2 c 4 2
+	/bin/mknod -m 400 /dev/tty3 c 4 3
+	/bin/mknod -m 400 /dev/tty4 c 4 4
+	/bin/mknod -m 400 /dev/tty5 c 4 5
+	/bin/mknod -m 400 /dev/tty6 c 4 6
+fi
