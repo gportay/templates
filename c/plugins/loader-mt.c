@@ -59,6 +59,7 @@ struct priv {
 	int plugins_count;
 	struct plugin_data *plugins_data;
 	pthread_t main_thread;
+	int signaled;
 };
 
 static struct priv PRIVATE;
@@ -146,10 +147,14 @@ static void exit_handler(void *arg)
 	int i;
 	(void)arg;
 
+	if (PRIVATE.signaled)
+		return;
+
 	for (i = 0; i < PRIVATE.plugins_count; i ++)
 		if (!PRIVATE.plugins_data[i].exited)
 			return;
 
+printf("\n\nPRIVATE.signaled: %i\n\n", PRIVATE.signaled);
 	verbose("Raising %s!\n", strsignal(SIGTERM));
 	if (pthread_kill(PRIVATE.main_thread, SIGTERM))
 		perror("pthread_kill");
@@ -174,8 +179,9 @@ static void *start_thread(void *arg)
 	}
 	verbose("[%i] Thread exited!\n", gettid());
 
+printf("\n\nPRIVATE.signaled: %i\n\n", PRIVATE.signaled);
 	pthread_cleanup_pop(1);
-	pthread_cleanup_pop(1);
+	pthread_cleanup_pop(!PRIVATE.signaled);
 
 	return &data->retval;
 }
@@ -252,7 +258,7 @@ static void stop_plugins(struct plugin_data data[], int argc, char * const argv[
 			else
 				verbose("[%i] Thread joined!\n", gettid());
 
-			data[i].retval = *(int *)retval;
+//			data[i].retval = *(int *)retval;
 		}
 
 		if ((void *)&data[i].retval == PTHREAD_CANCELED)
@@ -312,6 +318,18 @@ int main(int argc, char * const argv[])
 			return EXIT_FAILURE;
 		}
 
+		sig = SIGUSR1;
+		if (sigaddset(&sigset, sig) == -1) {
+			perror("sigaddset");
+			return EXIT_FAILURE;
+		}
+
+		sig = SIGUSR2;
+		if (sigaddset(&sigset, sig) == -1) {
+			perror("sigaddset");
+			return EXIT_FAILURE;
+		}
+
 		if (sigprocmask(SIG_SETMASK, &sigset, NULL) == -1) {
 			perror("sigprocmask");
 			return EXIT_FAILURE;
@@ -323,7 +341,6 @@ int main(int argc, char * const argv[])
 		/* main loop */
 		/* for (;;); */
 		for (;;) {
-
 			siginfo_t siginfo;
 			sig = sigwaitinfo(&sigset, &siginfo);
 			if (sig == -1) {
@@ -336,8 +353,30 @@ int main(int argc, char * const argv[])
 
 			debug("sigwaitinfo(): %i: %s\n", sig, strsignal(sig));
 
-			if ((sig == SIGINT) || (sig == SIGTERM))
+			if ((sig == SIGINT) || (sig == SIGTERM)) {
+printf("\n\nPRIVATE.signaled: %i\n\n", PRIVATE.signaled);
+				verbose("%s\n", strsignal(sig));
+				PRIVATE.signaled = 1;
+printf("\n\nPRIVATE.signaled: %i\n\n", PRIVATE.signaled);
 				break;
+			}
+
+#if 0
+			if ((sig == SIGUSR1) || (sig == SIGUSR2)) {
+				verbose("[%i] Signaling thread using %i (%s)...\n",
+					gettid(), sig, strsignal(sig));
+				if (pthread_kill(t, sig)) {
+					perror("pthread_kill");
+					break;
+				}
+				verbose("[%i] Thread signaled!\n", gettid());
+
+				if (sig == SIGTERM)
+					break;
+
+				continue;
+			}
+#endif
 
 			fprintf(stderr, "%s: Uncaught signal!\n", strsignal(sig));
 			break;
@@ -352,5 +391,6 @@ exit:
 		stop_plugins(data, argc-argi, &argv[argi]);
 	}
 
+verbose("Exiting %i!\n", ret);
 	return ret;
 }

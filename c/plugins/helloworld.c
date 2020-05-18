@@ -25,7 +25,7 @@ int helloworld(int argc, char * const argv[])
 	(void)argv;
 	printf("Hello, World!\n");
 
-	return 0;
+	return 2;
 }
 
 DECLARE_PLUGIN(helloworld);
