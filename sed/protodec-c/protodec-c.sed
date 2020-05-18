@@ -30,3 +30,5 @@
 
 /^message \+/,/}/p
 /^enum \+/,/}/p
+
+# ex: filetype=sed
