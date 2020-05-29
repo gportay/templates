@@ -1,0 +1,8 @@
+#!/bin/sh -e
+
+DEVICE=${2:-/dev/input/event0}
+NAME="$DEVICE" \
+DESC="Input-Event daemon" \
+ARGS="$DEVICE" \
+HELP="[DEVICE=$DEVICE]" \
+/usr/share/init.d/${0##*/} $*

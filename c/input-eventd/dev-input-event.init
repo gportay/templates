@@ -1,0 +1,5 @@
+#!/bin/sh -e
+
+dev=${0##*/}
+dev=/dev/${dev/-//}
+/etc/init.d/input-eventd $1 $dev

@@ -1,0 +1,6 @@
+#!/bin/sh
+
+event=${DEVNAME##*/}
+[ -z "$event" ] && exit 0
+
+run-parts --arg $1 --arg $2 /usr/share/input-eventd/$event.d

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+gpiokey=
+for gk in /proc/device-tree/gpio_keys/*/linux,code; do
+	lc=$(xd $gk)
+	if test $((0x$lc)) -eq $1; then
+		gpiokey=${gk%/*}
+		break;
+	fi
+done
+
+label=$(cat $gpiokey/label 2>/dev/null || echo UNKNOWN)
+date +%c | sed -e 's,$, '"$DEVNAME: label: $label code: $1 value: $2"' ,'
