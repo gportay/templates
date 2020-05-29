@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Gaël PORTAY <gael.portay@gmail.com>.
+ * Copyright (c) 2014, 2020 Gaël PORTAY <gael.portay@gmail.com>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms are permitted
@@ -15,6 +15,7 @@
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
