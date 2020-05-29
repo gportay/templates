@@ -10,7 +10,7 @@ all: input-eventd
 define do_test
 test-$(1)-$(2): PATH:=$(CURDIR):$(PATH)
 test-$(1)-$(2): input-eventd
-	input-eventd --script $(2).script /dev/input/$(1)
+	input-eventd --verbose --script $(2).script /dev/input/$(1)
 endef
 
 define do_test_script

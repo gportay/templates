@@ -200,6 +200,7 @@ int main(int argc, char * const argv[])
 			break;
 		}
 
+		verbose("code: %u, value: %u\n", input_event.code, input_event.value);
 		if (!input_event.code)
 			continue;
 
