@@ -53,14 +53,14 @@ const char *applet(const char * arg0)
 
 void usage(FILE * f, char * const arg0)
 {
-  fprintf(f, "Usage: %s [OPTIONS] DEVICE\n\n"
-	     "Options:\n"
-	     " -t or --timeout SECOND Set time-out in seconds [default=-1].\n"
-	     " -s or --script         Set script [default=/usr/share/reboot].\n"
-	     " -v or --verbose        Turn on verbosity.\n"
-	     " -V or --version        Display the version.\n"
-	     " -h or --help           Display this message.\n"
-	     "", applet(arg0));
+	fprintf(f, "Usage: %s [OPTIONS] DEVICE\n\n"
+		   "Options:\n"
+		   " -t or --timeout SECOND Set time-out in seconds [default=-1].\n"
+		   " -s or --script         Set script [default=/usr/share/reboot].\n"
+		   " -v or --verbose        Turn on verbosity.\n"
+		   " -V or --version        Display the version.\n"
+		   " -h or --help           Display this message.\n"
+		   "", applet(arg0));
 }
 
 int parse_arguments(struct options_t *opts, int argc, char * const argv[])
@@ -124,7 +124,8 @@ int parse_arguments(struct options_t *opts, int argc, char * const argv[])
 	return optind;
 }
 
-int main(int argc, char * const argv[]) {
+int main(int argc, char * const argv[])
+{
 	int pfd = -1;
 	int fd = -1;
 	int ret = EXIT_FAILURE;
