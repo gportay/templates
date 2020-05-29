@@ -1,6 +1,11 @@
 #!/bin/sh
+#
+# Copyright 2015, 2020 Gaël PORTAY
+#
+# SPDX-License-Identifier: BSD 4-Clause
+#
 
 event=${DEVNAME##*/}
 [ -z "$event" ] && exit 0
 
-run-parts --arg $1 --arg $2 /usr/share/input-eventd/$event.d
+run-parts --arg $1 --arg $2 --arg $3 /usr/share/input-eventd/$event.d

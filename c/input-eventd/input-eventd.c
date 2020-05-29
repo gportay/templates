@@ -200,11 +200,11 @@ int main(int argc, char * const argv[])
 			break;
 		}
 
-		verbose("code: %u, value: %u\n", input_event.code, input_event.value);
+		verbose("type: %u, code: %u, value: %u\n", input_event.type, input_event.code, input_event.value);
 		if (input_event.type == EV_SYN && input_event.code == SYN_REPORT && input_event.value == 0)
 			continue;
 
-		__sprintf(buf, "DEVNAME=%s %s %u %u", options.device, options.script, input_event.code, input_event.value);
+		__sprintf(buf, "DEVNAME=%s TYPE=%u %s %u %u", options.device, input_event.type, options.script, input_event.code, input_event.value);
 		if (system(buf))
 			perror("system");
 	}
