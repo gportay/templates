@@ -15,40 +15,50 @@
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#else
+const char VERSION[] = __DATE__ " " __TIME__;
+#endif /* HAVE_CONFIG_H */
+
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <fcntl.h>
 #include <getopt.h>
+#include <fcntl.h>
 #include <sys/epoll.h>
 #include <sys/reboot.h>
 #include <linux/input.h>
 
-#define BUFSIZE 256
 #define __strcmp(s1, s2) strncmp(s1, s2, sizeof(s1))
 #define __sprintf(s, fmt, ...) snprintf(s, sizeof(s), fmt, __VA_ARGS__)
+#define __perror(s, e) fprintf(stderr, "%s: %s\n", s, strerror(e))
+#define __close(fd) do { \
+        int __error = errno; \
+        if (close(fd) == -1) \
+                perror("close"); \
+        errno = __error; \
+} while(0)
 
-const char VERSION[] = "1.0";
 static int VERBOSE = 0;
+#define verbose(fmt, ...) if (VERBOSE) fprintf(stdout, fmt, ##__VA_ARGS__)
 
-struct options_t {
+struct options {
 	int force;
 	int timeout;
 	const char *script;
 	const char *device;
 };
 
-const char *applet(const char * arg0)
+static inline const char *applet(const char *arg0)
 {
-	const char *applet = strrchr(arg0, '/');
-	if (!applet)
-		applet = arg0;
-	else
-		applet++;
+	char *s = strrchr(arg0, '/');
+	if (!s)
+		return arg0;
 
-	return applet;
+	return s+1;
 }
 
 void usage(FILE * f, char * const arg0)
@@ -57,15 +67,15 @@ void usage(FILE * f, char * const arg0)
 		   "Options:\n"
 		   " -t or --timeout SECOND Set time-out in seconds [default=-1].\n"
 		   " -s or --script         Set script [default=/usr/share/reboot].\n"
-		   " -v or --verbose        Turn on verbosity.\n"
+		   " -v or --verbose        Turn on verbose messages.\n"
 		   " -V or --version        Display the version.\n"
 		   " -h or --help           Display this message.\n"
 		   "", applet(arg0));
 }
 
-int parse_arguments(struct options_t *opts, int argc, char * const argv[])
+int parse_arguments(struct options *opts, int argc, char * const argv[])
 {
-	static const struct option lopts[] = {
+	static const struct option long_options[] = {
 		{ "timeout", required_argument, NULL, 't' },
 		{ "script",  required_argument, NULL, 's' },
 		{ "verbose", no_argument,       NULL, 'v' },
@@ -74,22 +84,28 @@ int parse_arguments(struct options_t *opts, int argc, char * const argv[])
 		{ NULL,      no_argument,       NULL, 0   }
 	};
 
+	opts->timeout = -1;
 	opts->script = "/usr/share/input-event.action";
-
+	opterr = 1;
 	for (;;) {
-		int i, c = getopt_long(argc, argv, "t:vVh", lopts, &i);
-		if (c == -1)
+		int index;
+		int c = getopt_long(argc, argv, "t:vVh", long_options, &index);
+		if (c == -1) {
 			break;
+		}
 
 		switch (c) {
 		case 't': {
 			char *e;
 			long l = strtol(optarg, &e, 0);
 			if (*e) {
-				fprintf(stderr, "Invalid time-out argument <%s>!\n", optarg);
+				fprintf(stderr, "Error: Invalid time-out argument \"%s\"!\n", optarg);
 				exit(EXIT_FAILURE);
 			}
-			opts->timeout = l;
+			if (l >= 0)
+				opts->timeout = l * 1000;
+			else
+				opts->timeout = -1;
 			break;
 		}
 
@@ -98,7 +114,7 @@ int parse_arguments(struct options_t *opts, int argc, char * const argv[])
 			break;
 
 		case 'v':
-			VERBOSE = 1;
+			VERBOSE++;
 			break;
 
 		case 'V':
@@ -111,13 +127,9 @@ int parse_arguments(struct options_t *opts, int argc, char * const argv[])
 			exit(EXIT_SUCCESS);
 			break;
 
-		case '?':
-			exit(EXIT_FAILURE);
-			break;
-
 		default:
-			printf("?? getopt returned character code 0%o ??\n", c);
-			exit(EXIT_FAILURE);
+		case '?':
+			return -1;
 		}
 	}
 
@@ -126,27 +138,24 @@ int parse_arguments(struct options_t *opts, int argc, char * const argv[])
 
 int main(int argc, char * const argv[])
 {
-	int pfd = -1;
-	int fd = -1;
-	int ret = EXIT_FAILURE;
+	int pfd = -1, fd = -1, ret = -1;
 	struct epoll_event epoll_event;
-	struct input_event input_event;
-	struct options_t options = {
+	struct options options = {
 		.timeout = -1,
 		.device = NULL,
 	};
 
 	int argi = parse_arguments(&options, argc, argv);
-	if (argi < 0)
+	if (argi < 0) {
+		fprintf(stderr, "Error: %s: Invalid option!\n", argv[optind-1]);
 		exit(EXIT_FAILURE);
-	else if (argc - argi <= 0) {
+	} else if (argc - argi <= 0) {
 		usage(stdout, argv[0]);
-		fprintf(stderr, "Too few arguments!\n");
+		fprintf(stderr, "Error: Too few arguments!\n");
 		exit(EXIT_FAILURE);
-	}
-	else if (argc - argi > 1) {
+	} else if (argc - argi > 1) {
 		usage(stdout, argv[0]);
-		fprintf(stderr, "Too many arguments!\n");
+		fprintf(stderr, "Error: Too many arguments!\n");
 		exit(EXIT_FAILURE);
 	}
 	options.device = argv[argi++];
@@ -165,27 +174,29 @@ int main(int argc, char * const argv[])
 
 	epoll_event.events = EPOLLIN;
 	epoll_event.data.fd = fd;
-	if (epoll_ctl(pfd, EPOLL_CTL_ADD, fd, &epoll_event)) {
+	ret = epoll_ctl(pfd, EPOLL_CTL_ADD, fd, &epoll_event);
+	if (ret) {
 		perror("epoll_ctl");
 		goto exit;
 	}
 
 	for (;;) {
-		char buf[BUFSIZE];
+		struct input_event input_event;
+		char buf[BUFSIZ];
 		ret = epoll_wait(pfd, &epoll_event, 1, options.timeout);
 		if (ret < 0) {
 			perror("epoll_wait");
 			break;
-		}
-
-		if (ret == 0) {
-			ret = EXIT_SUCCESS;
+		} else if (!ret) {
+			__perror("epoll_wait", ETIME);
 			break;
 		}
 
 		ret = read(fd, (char *) &input_event, sizeof(input_event));
 		if (ret < 0) {
 			perror("read");
+			break;
+		} else if (!ret) {
 			break;
 		}
 
@@ -197,17 +208,18 @@ int main(int argc, char * const argv[])
 			perror("system");
 	}
 
+	ret = 0;
 exit:
-	if (fd) {
+	if (fd > -1) {
 		epoll_ctl(pfd, EPOLL_CTL_DEL, fd, &epoll_event);
-		close(fd);
+		__close(fd);
 		fd = -1;
 	}
 
 	if (pfd) {
-		close(pfd);
+		__close(pfd);
 		pfd = -1;
 	}
 
-	return ret;
+	return !ret ? EXIT_SUCCESS : EXIT_FAILURE;
 }
