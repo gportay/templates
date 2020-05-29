@@ -1,13 +1,8 @@
 #!/bin/sh
+#
+# Copyright 2015, 2020 Gaël PORTAY
+#
+# SPDX-License-Identifier: BSD 4-Clause
+#
 
-gpiokey=
-for gk in /proc/device-tree/gpio_keys/*/linux,code; do
-	lc=$(xd $gk)
-	if test $((0x$lc)) -eq $1; then
-		gpiokey=${gk%/*}
-		break;
-	fi
-done
-
-label=$(cat $gpiokey/label 2>/dev/null || echo UNKNOWN)
-date +%c | sed -e 's,$, '"$DEVNAME: label: $label code: $1 value: $2"' ,'
+printf "%s: devname: '%s', code: %u, value: %u\n" "$(date +%c)" "$DEVNAME" "$1" "$2"
