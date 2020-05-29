@@ -1,0 +1,20 @@
+#
+# Copyright 2020 Gaël PORTAY
+#
+# SPDX-License-Identifier: BSD 4-Clause
+#
+
+.PHONY: all
+all: input-eventd
+
+define do_test
+test-$(1): PATH:=$(CURDIR):$(PATH)
+test-$(1): input-eventd
+	input-eventd --script log.script /dev/input/$(1)
+endef
+$(foreach dev,$(subst /dev/input/,,$(wildcard /dev/input/event*)),$(eval $(call do_test,$(dev))))
+
+.PHONY: clean
+clean:
+	rm -f input-eventd
+
