@@ -8,11 +8,16 @@
 all: input-eventd
 
 define do_test
-test-$(1): PATH:=$(CURDIR):$(PATH)
-test-$(1): input-eventd
-	input-eventd --script log.script /dev/input/$(1)
+test-$(1)-$(2): PATH:=$(CURDIR):$(PATH)
+test-$(1)-$(2): input-eventd
+	input-eventd --script $(2).script /dev/input/$(1)
 endef
-$(foreach dev,$(subst /dev/input/,,$(wildcard /dev/input/event*)),$(eval $(call do_test,$(dev))))
+
+define do_test_script
+$(foreach dev,$(subst /dev/input/,,$(wildcard /dev/input/event*)),$(eval $(call do_test,$(dev),$(1))))
+endef
+
+$(foreach script,$(subst .script,,$(wildcard *.script)),$(eval $(call do_test_script,$(script))))
 
 .PHONY: clean
 clean:

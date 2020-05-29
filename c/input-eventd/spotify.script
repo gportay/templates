@@ -1,0 +1,27 @@
+#!/bin/sh
+#
+# Copyright 2020 Gaël PORTAY
+#
+# SPDX-License-Identifier: BSD 4-Clause
+#
+# See https://fabianlee.org/2016/05/25/ubuntu-enabling-media-keys-for-spotify/
+
+if [[ "$2" -eq 1 ]]
+then
+	exit
+fi
+
+case "$1" in
+# KEY_PLAYCD
+200)
+	dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.PlayPause
+	;;
+# KEY_NEXTSONG
+163)
+	dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Next
+	;;
+# KEY_PREVIOUSSONG
+165)
+	dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Previous
+	;;
+esac
