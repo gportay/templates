@@ -32,6 +32,8 @@ const char VERSION[] = __DATE__ " " __TIME__;
 #include <sys/reboot.h>
 #include <linux/input.h>
 
+#define ACTION_SCRIPT "/usr/share/input-event.action"
+
 #define __strcmp(s1, s2) strncmp(s1, s2, sizeof(s1))
 #define __sprintf(s, fmt, ...) snprintf(s, sizeof(s), fmt, __VA_ARGS__)
 #define __perror(s, e) fprintf(stderr, "%s: %s\n", s, strerror(e))
@@ -66,11 +68,11 @@ void usage(FILE * f, char * const arg0)
 	fprintf(f, "Usage: %s [OPTIONS] DEVICE\n\n"
 		   "Options:\n"
 		   " -t or --timeout SECOND Set time-out in seconds [default=-1].\n"
-		   " -s or --script         Set script [default=/usr/share/reboot].\n"
+		   " -s or --script         Set script [default=%s].\n"
 		   " -v or --verbose        Turn on verbose messages.\n"
 		   " -V or --version        Display the version.\n"
 		   " -h or --help           Display this message.\n"
-		   "", applet(arg0));
+		   "", applet(arg0), ACTION_SCRIPT);
 }
 
 int parse_arguments(struct options *opts, int argc, char * const argv[])
