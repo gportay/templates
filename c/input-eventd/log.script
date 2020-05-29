@@ -1,8 +1,19 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Copyright 2015, 2020 Gaël PORTAY
 #
 # SPDX-License-Identifier: BSD 4-Clause
 #
 
-printf "%s: devname: '%s', code: %u, value: %u\n" "$(date +%c)" "$DEVNAME" "$1" "$2"
+if [[ -e input-event-codes.bash ]]
+then
+	source input-event-codes.bash
+	key="${KEYS[$1]}"
+	if [[ $key ]]
+	then
+		shift
+		set -- "$key" "$@"
+	fi
+fi
+
+printf "%s: devname: '%s', code: %s, value: %u\n" "$(date +%c)" "$DEVNAME" "$1" "$2"
