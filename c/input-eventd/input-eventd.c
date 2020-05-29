@@ -201,7 +201,7 @@ int main(int argc, char * const argv[])
 		}
 
 		verbose("code: %u, value: %u\n", input_event.code, input_event.value);
-		if (!input_event.code)
+		if (input_event.type == EV_SYN && input_event.code == SYN_REPORT && input_event.value == 0)
 			continue;
 
 		__sprintf(buf, "DEVNAME=%s %s %u %u", options.device, options.script, input_event.code, input_event.value);
