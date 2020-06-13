@@ -15,7 +15,7 @@ qflags: LDLIBS += -lQt5Core
 .PHONY: test
 test: PATH:=$(CURDIR):$(PATH)
 test: qflags
-	qflags 1 2 4 8
+	qflags RequiredPartition NoBlockIOProtocol LegacyBIOSBootable 8
 
 .PHONY: clean
 clean:

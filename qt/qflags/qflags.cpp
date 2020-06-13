@@ -18,12 +18,26 @@ enum SfdiskAttribute {
 Q_DECLARE_FLAGS(SfdiskFlags, SfdiskAttribute)
 Q_DECLARE_OPERATORS_FOR_FLAGS(SfdiskFlags)
 
+const QMap<QString, SfdiskAttribute > SfdiskAttributes = {
+	{ "RequiredPartition",  RequiredPartition  },
+	{ "NoBlockIOProtocol",  NoBlockIOProtocol  },
+	{ "LegacyBIOSBootable", LegacyBIOSBootable },
+};
+
+static SfdiskAttribute toSfdiskAttribute(const QString& s)
+{
+	bool ok;
+	ulong l = s.toLong(&ok);
+	if (ok)
+		return SfdiskAttribute(l);
+
+	return SfdiskAttributes[s];
+}
+
 int main(int argc, char * const argv[])
 {
 	SfdiskFlags flags;
-	for (int i = 0; i < argc; i++) {
-		ulong f = QString(argv[i]).toULong();
-		flags |= SfdiskAttribute(f);
-	}
+	for (int i = 0; i < argc; i++)
+		flags |= toSfdiskAttribute(argv[i]);
 	qDebug() << flags;
 }
