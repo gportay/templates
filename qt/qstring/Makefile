@@ -5,18 +5,20 @@
 #
 
 .PHONY: all
-all: qstring
+all: qstring-leftright
 
-qstring: CXXFLAGS += -fPIC
-qstring: CXXFLAGS += -I /usr/include/qt
-qstring: CXXFLAGS += -I /usr/include/qt/QtCore
-qstring: LDLIBS += -lQt5Core
+qstring-leftright:
+
+qstring-%: CXXFLAGS += -fPIC
+qstring-%: CXXFLAGS += -I /usr/include/qt
+qstring-%: CXXFLAGS += -I /usr/include/qt/QtCore
+qstring-%: LDLIBS += -lQt5Core
 
 .PHONY: test
 test: PATH:=$(CURDIR):$(PATH)
-test: qstring 
-	qstring "/dev/sda1@/efi/grub/grub.cfg" "/dev/sda1" "/dev" "/dev/"
+test: qstring-leftright
+	qstring-leftright "/dev/sda1@/efi/grub/grub.cfg" "/dev/sda1" "/dev" "/dev/"
 
 .PHONY: clean
 clean:
-	rm -f qstring
+	rm -f qstring-leftright
