@@ -39,8 +39,8 @@ by a dot `_._'.
 The size of dumped rows is set using _ROWSIZE_ global. This variable is set by
 default to _0x10_ to display 16 bytes per row.
 
-When _buf_ does not fill the row, **hexdump** prints an empty space _`` '_ to
-feed the row. This character is set using the global _EMPTYBYTE_.
+When _buf_ does not fill the row, **hexdump** prints an empty space to feed the
+row. This character is set using the global _EMPTYBYTE_.
 
 The function outputs _buf_ using the function pointed by the global
 _DUMFPRINTF_.
