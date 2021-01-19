@@ -14,6 +14,8 @@
 **static void fhexdump(FILE** \*_f_**, unsigned int** _address_
 **, const unsigned char** \*_buf_**, unsigned int** _bufsize_**);**
 
+**static int** _DUMPFPRINTF_**(FILE \*, const char \*, ...)** **= fprintf;**
+
 **static int** _DUMPHEADER_ **= 1;**
 
 **static int** _DUMPFOOTER_ = **1;**
@@ -40,6 +42,9 @@ default to _0x10_ to display 16 bytes per row.
 When _buf_ does not fill the row, **hexdump** prints an empty space _`` '_ to
 feed the row. This character is set using the global _EMPTYBYTE_.
 
+The function outputs _buf_ using the function pointed by the global
+_DUMFPRINTF_.
+
 if _DUMPADDR_ is non-null, each lines is prefixed by the _address_ + current
 _row_.
 
@@ -65,7 +70,7 @@ Written by Gaël PORTAY *gael.portay@gmail.com*
 
 ## COPYRIGHT
 
-Copyright (c) 2015-2017 Gaël PORTAY
+Copyright (c) 2015-2017, 2021 Gaël PORTAY
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the MIT License.

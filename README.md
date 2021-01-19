@@ -136,7 +136,7 @@ Written by Gaël PORTAY *gael.portay@gmail.com*
 
 ## COPYRIGHT
 
-Copyright (c) 2015-2019 Gaël PORTAY
+Copyright (c) 2015-2019,2021 Gaël PORTAY
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the MIT License.
